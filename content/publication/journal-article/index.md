@@ -1,16 +1,18 @@
 ---
-title: "An example journal article"
+title: "电催化CO2还原中单原子催化剂的设计与机理研究"
 authors:
 - admin
-- Robert Ford
+- 李明
+- 王教授
 author_notes:
-- "Equal contribution"
-- "Equal contribution"
-date: "2015-09-01T00:00:00Z"
-doi: ""
+- "第一作者"
+- "共同作者"
+- "通讯作者"
+date: "2024-03-15T00:00:00Z"
+doi: "10.1021/example.2024.001"
 
 # Schedule page publish date (NOT publication's date).
-publishDate: "2017-01-01T00:00:00Z"
+publishDate: "2024-03-15T00:00:00Z"
 
 # Publication type.
 # Accepts a single type but formatted as a YAML list (for Hugo requirements).
@@ -18,17 +20,20 @@ publishDate: "2017-01-01T00:00:00Z"
 publication_types: ["article-journal"]
 
 # Publication name and optional abbreviated publication name.
-publication: "*Journal of Source Themes, 1*(1)"
-publication_short: ""
+publication: "*Catalysis Science & Technology, 14*(8)"
+publication_short: "*Catal. Sci. Technol.*"
 
-abstract: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis posuere tellus ac convallis placerat. Proin tincidunt magna sed ex sollicitudin condimentum. Sed ac faucibus dolor, scelerisque sollicitudin nisi. Cras purus urna, suscipit quis sapien eu, pulvinar tempor diam. Quisque risus orci, mollis id ante sit amet, gravida egestas nisl. Sed ac tempus magna. Proin in dui enim. Donec condimentum, sem id dapibus fringilla, tellus enim condimentum arcu, nec volutpat est felis vel metus. Vestibulum sit amet erat at nulla eleifend gravida.
+abstract: 本研究通过密度泛函理论（DFT）计算系统研究了单原子催化剂在电催化CO2还原反应中的活性机理。我们设计了多种载体负载的单原子催化剂，并通过计算分析了其电子结构、反应路径和催化性能。研究发现，金属原子的d轨道电子构型和载体的电子性质协同决定了催化剂的活性和选择性。该工作为高效CO2还原催化剂的设计提供了理论指导。
 
 # Summary. An optional shortened abstract.
-summary: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis posuere tellus ac convallis placerat. Proin tincidunt magna sed ex sollicitudin condimentum.
+summary: 系统研究了单原子催化剂在电催化CO2还原中的机理，为高效催化剂设计提供理论指导。
 
 tags:
-- Source Themes
-featured: false
+- 电催化
+- CO2还原
+- 单原子催化剂
+- DFT计算
+featured: true
 
 # links:
 # - name: ""

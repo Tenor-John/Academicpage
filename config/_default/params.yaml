@@ -8,9 +8,9 @@ marketing:
   seo:
     site_type: Person
     local_business_type: ''
-    org_name: ''
-    description: 'The highly-customizable Hugo Academic theme powered by Hugo Blox Builder. Easily create your personal academic website.'
-    twitter: 'GetResearchDev'
+    org_name: '中国科学技术大学'
+    description: '江韬的学术主页 - 博士研究生，研究方向：电催化、光催化、计算化学 | Tor John Academic Homepage - PhD Student in Electrocatalysis, Photocatalysis, and Computational Chemistry'
+    twitter: ''
   analytics:
     google_analytics: ''
     baidu_tongji: ''
@@ -30,12 +30,12 @@ header:
     show_search: true
     show_theme_chooser: true
     logo:
-      text: "Your Name"
+      text: "江韬 | Tor John"
 
 # Site footer
 footer:
   copyright:
-    notice: '© {year} Me. This work is licensed under {license}'
+    notice: '© {year} 江韬 (Tor John). This work is licensed under {license}'
     license:
       enable: true
       allow_derivatives: false

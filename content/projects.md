@@ -1,5 +1,5 @@
 ---
-title: 'Projects'
+title: '项目 | Projects'
 date: 2024-05-19
 type: landing
 
@@ -11,8 +11,8 @@ design:
 sections:
   - block: collection
     content:
-      title: Selected Projects
-      text: I enjoy making things. Here are a selection of projects that I have worked on over the years.
+      title: 主要项目 | Selected Projects
+      text: 以下是我参与的一些主要研究项目和学术工作。Here are some of the main research projects and academic work I have been involved in.
       filters:
         folders:
           - project

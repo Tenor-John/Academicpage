@@ -1,31 +1,13 @@
 ---
 # Display name
-<<<<<<< HEAD
-<<<<<<< HEAD
-title: Tao Jiang
-=======
-title: 江 韬
->>>>>>> 8ce91a2de0c4bd06ba828e18be56c43e443f6d27
+title: 江韬 (Tor John)
 
 # Name pronunciation (optional)
-name_pronunciation: Tao Jiang
+#name_pronunciation: 
 
 # Full name (for SEO)
-first_name: Tao
-last_name: Jiang
-<<<<<<< HEAD
-=======
-title: Tor John
-
-# Name pronunciation (optional)
-name_pronunciation: Tao Jiang
-
-# Full name (for SEO)
-first_name: Tao
-last_name: Jiang
->>>>>>> 147b7e815952bed2edff68123f9315b40f7b9cc7
-=======
->>>>>>> 8ce91a2de0c4bd06ba828e18be56c43e443f6d27
+first_name: Tor
+last_name: John
 
 # Status emoji
 status:
@@ -38,191 +20,143 @@ superuser: true
 highlight_name: true
 
 # Role/position/tagline
-role: PhD Student
+role: 博士研究生 | PhD Student
 
 # Organizations/Affiliations to display in Biography blox
 organizations:
-  - name: 528 Lab @ USTC
-    url: http://staff.ustc.edu.cn/~mma/index.html
+  - name: 中国科学技术大学动态化学实验室
+    url: https://www.ustc.edu.cn/
 
 # Social network links
 # Need to use another icon? Simply download the SVG icon to your `assets/media/icons/` folder.
 profiles:
   - icon: at-symbol
-    url: '1278970607@qq.com'
+    url: 'mailto:tjiang23@mail.ustc.edu.cn'
     label: E-mail Me
-  - icon: brands/x
-    url: https://x.com/tenorjohn_phd
-  - icon: brands/instagram
-    url: https://www.instagram.com/
   - icon: brands/github
-    url: https://github.com/gcushen
+    url: https://github.com/Tenor-John
   - icon: brands/linkedin
     url: https://www.linkedin.com/
   - icon: academicons/google-scholar
-    url: https://scholar.google.cz/citations?user=d2QseXIAAAAJ&hl=zh-CN
+    url: https://scholar.google.com/citations?user=d2QseXIAAAAJ&hl=zh-CNhttps://scholar.google.com/
   - icon: academicons/orcid
     url: https://orcid.org/0009-0009-4116-2085
 
 interests:
-  - Biochemistry
-  - Computational Chemistry
-  - Quantum Chemistry
+  - 电催化 | Electrocatalysis
+  - 光催化 | Photocatalysis
+  - 计算化学 | Computational Chemistry
 
 education:
-<<<<<<< HEAD
-  - area: PhD Biochemistry
-    institution: USTC (University of Science and Technology of China)
-    date_start: 2019-09-07
-    date_end: 2023-7-1
-=======
-  - area: PhD Artificial Intelligence
-    institution: Stanford University
-<<<<<<< HEAD
-    date_start: 2016-01-01
-    date_end: 2020-12-31
->>>>>>> 147b7e815952bed2edff68123f9315b40f7b9cc7
-=======
-    date_start: 2023-09-03
-    date_end: 2023-09-03
->>>>>>> 8ce91a2de0c4bd06ba828e18be56c43e443f6d27
+  - area: 化学博士 | PhD in Chemistry
+    institution: 中国科学技术大学 | University of Science and Technology of China
+    date_start: 2024-09-01
+    date_end: ''
     summary: |
-      Thesis on _Why LLMs are awesome_. Supervised by [Prof Joe Smith](https://example.com). Presented papers at 5 IEEE conferences with the contributions being published in 2 Springer journals.
-    button:
-      text: 'Read Thesis'
-      url: 'https://example.com'
-<<<<<<< HEAD
-  - area: MEng Artificial Intelligence
-    institution: Massachusetts Institute of Technology
-<<<<<<< HEAD
-    date_start: 2019-09-07
+      研究方向：电催化、光催化、计算化学
+  
+      主要研究内容：
+      - 催化反应机理及材料设计
+      - 电化学能源转换
+      - 密度泛函理论计算
+  - area: 高分子材料与科学学士 | BSc in Polymer material and science  
+    institution: 中国科学技术大学 | University of Science and Technology of China
+    date_start: 2019-09-01
     date_end: 2023-07-01
-=======
-    date_start: 2016-01-01
-    date_end: 2020-12-31
->>>>>>> 147b7e815952bed2edff68123f9315b40f7b9cc7
-=======
-  - area: Undergraduate Polymer Materials and Engineering
-    institution: Guizhou University
-    date_start: 2019-09-07
-    date_end: 2023-07-01
->>>>>>> 8ce91a2de0c4bd06ba828e18be56c43e443f6d27
     summary: |
-      GPA: 4.22/5.0
+      主要课程：
+      - 有机化学、无机化学、物理化学
+      - 结构化学、量子化学
+      - 催化化学原理
 
-      Courses included:
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - area: BSc Artificial Intelligence
-    institution: Massachusetts Institute of Technology
-    date_start: 2016-01-01
-    date_end: 2020-12-31
-    summary: |
-      GPA: 3.4/4.0
-      
-      Courses included:
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
 work:
-  - position: Director of Cloud Infrastructure
-    company_name: GenCoin
-    company_url: ''
+  - position: 博士研究生 | PhD Student
+    company_name: 中国科学技术大学动态化学实验室
+    company_url: 'https://www.ustc.edu.cn/'
     company_logo: ''
-    date_start: 2021-01-01
+    date_start: 2023-09-01
     date_end: ''
     summary: |2-
-      Responsibilities include:
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - position: Backend Software Engineer
-    company_name: X
-    company_url: ''
+      研究内容：
+      - 电催化反应机理研究
+      - 光催化材料设计与合成
+      - 密度泛函理论计算
+      - 催化剂表征与性能测试
+  - position: 本科生研究助理 | Undergraduate Research Assistant
+    company_name: 中国科学技术大学
+    company_url: 'https://www.ustc.edu.cn/'
     company_logo: ''
-    date_start: 2016-01-01
-    date_end: 2020-12-31
+    date_start: 2022-01-01
+    date_end: 2023-07-01
     summary: |
-      Responsibilities include:
-      - Migrated infrastructure to a new data center
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
+      研究工作：
+      - 参与催化剂合成与表征
+      - 协助进行电化学测试
+      - 学习计算化学方法
 
 # Skills
 # Add your own SVG icons to `assets/media/icons/`
 skills:
-  - name: Technical Skills
+  - name: 计算技能 | Technical Skills
     items:
       - name: Python
-        description: ''
-        percent: 80
+        description: '数据分析与科学计算'
+        percent: 85
         icon: code-bracket
-      - name: Data Science
-        description: ''
-        percent: 100
+      - name: 量子化学软件
+        description: 'Gaussian, VASP, CP2K'
+        percent: 80
         icon: chart-bar
-      - name: SQL
-        description: ''
-        percent: 40
+      - name: 机器学习
+        description: '催化剂设计与优化'
+        percent: 70
         icon: circle-stack
-  - name: Hobbies
+  - name: 实验技能 | Experimental Skills
     color: '#eeac02'
     color_border: '#f0bf23'
     items:
-      - name: Hiking
-        description: ''
-        percent: 60
-        icon: person-simple-walk
-      - name: Cats
-        description: ''
-        percent: 100
-        icon: cat
-      - name: Photography
-        description: ''
-        percent: 80
-        icon: camera
+      - name: 电化学测试
+        description: 'CV, LSV, EIS等'
+        percent: 90
+        icon: academic-cap
+      - name: 材料表征
+        description: 'XRD, SEM, XPS等'
+        percent: 85
+        icon: beaker
 
 languages:
-  - name: English
+  - name: 中文 | Chinese
     percent: 100
-  - name: Chinese
-    percent: 75
-  - name: Portuguese
-    percent: 25
+  - name: English
+    percent: 85
 
 # Awards.
 #   Add/remove as many awards below as you like.
 #   Only `title`, `awarder`, and `date` are required.
 #   Begin multi-line `summary` with YAML's `|` or `|2-` multi-line prefix and indent 2 spaces below.
 awards:
-  - title: Neural Networks and Deep Learning
-    url: https://www.coursera.org/learn/neural-networks-deep-learning
-    date: '2023-11-25'
-    awarder: Coursera
-    icon: coursera
+  - title: 国家奖学金
+    date: '2022-10-01'
+    awarder: 贵州大学
     summary: |
-      I studied the foundational concept of neural networks and deep learning. By the end, I was familiar with the significant technological trends driving the rise of deep learning; build, train, and apply fully connected deep neural networks; implement efficient (vectorized) neural networks; identify key parameters in a neural network’s architecture; and apply deep learning to your own applications.
-  - title: Blockchain Fundamentals
-    url: https://www.edx.org/professional-certificate/uc-berkeleyx-blockchain-fundamentals
+      因综合表现突出，获得国家奖学金
+  - title: 十佳科技创新大学生
+    date: '2023-06-01'
+    awarder: 贵州大学
+    summary: |
+      因学术表现优异获得十佳科技创新大学生
+  - title: 校优秀毕业生
     date: '2023-07-01'
-    awarder: edX
-    icon: edx
+    awarder: 贵州大学
     summary: |
-      Learned:
-      - Synthesize your own blockchain solutions
-      - Gain an in-depth understanding of the specific mechanics of Bitcoin
-      - Understand Bitcoin’s real-life applications and learn how to attack and destroy Bitcoin, Ethereum, smart contracts and Dapps, and alternatives to Bitcoin’s Proof-of-Work consensus algorithm
-  - title: 'Object-Oriented Programming in R'
-    url: https://www.datacamp.com/courses/object-oriented-programming-with-s3-and-r6-in-r
-    certificate_url: https://www.datacamp.com
-    date: '2023-01-21'
-    awarder: datacamp
-    icon: datacamp
-    summary: |
-      Object-oriented programming (OOP) lets you specify relationships between functions and the objects that they can act on, helping you manage complexity in your code. This is an intermediate level course, providing an introduction to OOP, using the S3 and R6 systems. S3 is a great day-to-day R programming tool that simplifies some of the functions that you write. R6 is especially useful for industry-specific analyses, working with web APIs, and building GUIs.
+      本科期间德智体美劳全面发展，获得优秀毕业生称号
 ---
+## About Me | 关于我
 
-## About Me
+我是江韬，目前在中国科学技术大学动态化学实验室攻读化学博士学位。我的研究兴趣主要集中在电催化、光催化和计算化学领域。
 
-Chien Shiung Wu is a professor of artificial intelligence at the Stanford AI Lab. Her research interests include distributed robotics, mobile computing and programmable matter. She leads the Robotic Neurobiology group, which develops self-reconfiguring robots, systems of self-organizing robots, and mobile sensor networks.
+I am Tor John, currently pursuing a PhD in Chemistry at the Dynamic Chemistry Laboratory, University of Science and Technology of China. My research interests focus on electrocatalysis, photocatalysis, and computational chemistry.
+
+我的研究工作主要围绕催化反应机理的理论计算和实验验证，致力于设计高效的催化材料用于能源转换应用。通过结合密度泛函理论计算和实验表征手段，我希望能够深入理解催化过程的本质，为开发新型高效催化剂提供理论指导。
+
+My research focuses on theoretical calculations and experimental validation of catalytic reaction mechanisms, aiming to design efficient catalytic materials for energy conversion applications. By combining density functional theory calculations with experimental characterization methods, I seek to understand the fundamental nature of catalytic processes and provide theoretical guidance for developing novel efficient catalysts.
