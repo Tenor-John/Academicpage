@@ -9,6 +9,7 @@ aliases:
 
 design:
   spacing: '3rem'
+  css_class: 'skill-learning-page container-fluid'
 
 sections:
   - block: markdown

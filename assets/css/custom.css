@@ -21,6 +21,60 @@
   font-size: 0.9rem;
 }
 
+/* Full-width page layout */
+.max-width-none {
+  max-width: none !important;
+}
+
+.container-fluid {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+}
+
+/* Main content area full width */
+main .container {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Teaching/Skill Learning page specific styles */
+.teaching-page .container,
+.skill-learning-page .container {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 0 2rem !important;
+}
+
+/* Laboratory instruments grid responsive */
+.lab-instruments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* Content sections full width */
+.section-content {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Article content responsive */
+.article-container {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.article-header,
+.article-content {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
 /* Responsive video containers */
 @media (max-width: 768px) {
   .video-container {
@@ -30,6 +84,23 @@
   .video-caption {
     font-size: 0.8rem;
   }
+  
+  .container-fluid {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  .lab-instruments-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container-fluid {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
 }
 
 /* Video gallery grid */
@@ -38,6 +109,7 @@
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
   margin: 2rem 0;
+  width: 100%;
 }
 
 .video-gallery .video-container {

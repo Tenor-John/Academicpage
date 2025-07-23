@@ -1,7 +1,10 @@
 ---
-title: 教学 | Teaching
-summary: 教学课程和实验教程 | My courses and experimental tutorials
+title: 技能学习 | Skill Learning
+summary: 技能培训和实验教程 | Skills training and experimental tutorials
 type: landing
+
+design:
+  css_class: 'skill-learning-page container-fluid'
 
 cascade:
   - _target:
@@ -12,11 +15,11 @@ cascade:
 sections:
   - block: markdown
     content:
-      title: 教学概述 | Teaching Overview
+      title: 技能学习概述 | Skill Learning Overview
       text: |
-        欢迎来到我的教学页面！这里包含了我参与的课程教学以及为学生制作的实验教程。
+        欢迎来到我的技能学习页面！这里包含了各种技能培训课程以及为学习者制作的实验教程。
         
-        Welcome to my teaching page! Here you'll find courses I'm involved in and experimental tutorials I've created for students.
+        Welcome to my skill learning page! Here you'll find various skill training courses and experimental tutorials I've created for learners.
         
         ## 📚 教学内容 | Teaching Content
         
