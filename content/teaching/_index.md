@@ -22,6 +22,7 @@ sections:
         
         - **课程教学**：化学相关课程的教学内容
         - **实验教程**：详细的实验操作指导，配有视频演示
+        - **仪器指南**：实验室仪器使用操作手册
         - **学习资源**：相关的学习材料和参考资料
         
         ## 🎥 教程特色 | Tutorial Features
@@ -30,6 +31,12 @@ sections:
         - 高清视频演示操作过程
         - 安全注意事项提醒
         - 常见问题解答
+        
+        ## 🔗 快速导航 | Quick Navigation
+        
+        - 📋 [**实验室仪器使用指南**](/teaching/laboratory-instruments/) - 528Lab全部仪器操作手册
+        - 🎓 [**实验教程中心**](/teaching/tutorials/) - 详细实验操作指导
+        - 📚 [**课程教学**](#courses) - 参与教学的课程内容
         
   - block: collection
     id: courses
