@@ -21,14 +21,17 @@
   font-size: 0.9rem;
 }
 
-/* Full-width page layout */
+/* Full-width page layout - Enhanced */
 .max-width-none {
   max-width: none !important;
+  width: 100% !important;
 }
 
 .container-fluid {
-  width: 100% !important;
-  max-width: 100% !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  margin-left: calc(-50vw + 50%) !important;
+  margin-right: calc(-50vw + 50%) !important;
   padding-left: 2rem !important;
   padding-right: 2rem !important;
 }
@@ -39,22 +42,41 @@ main .container {
   width: 100% !important;
 }
 
+/* Page wrapper full width */
+.page-wrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
 /* Teaching/Skill Learning page specific styles */
-.teaching-page .container,
-.skill-learning-page .container {
+.skill-learning-page {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.skill-learning-page .container,
+.skill-learning-page .hbb-section {
   max-width: 100% !important;
   width: 100% !important;
-  padding: 0 2rem !important;
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
 }
 
 /* Laboratory instruments grid responsive */
-.lab-instruments-grid {
+.lab-instruments-grid,
+.instrument-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1.5rem;
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
+}
+
+/* Instrument cards full width */
+.instrument-card {
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Content sections full width */
@@ -75,7 +97,22 @@ main .container {
   width: 100% !important;
 }
 
-/* Responsive video containers */
+/* Landing page sections */
+.hbb-section {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Prose content can be wider but still readable */
+.prose {
+  max-width: none !important;
+}
+
+.max-w-prose {
+  max-width: 100% !important;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
   .video-container {
     margin: 1rem 0;
@@ -90,7 +127,14 @@ main .container {
     padding-right: 1rem !important;
   }
   
-  .lab-instruments-grid {
+  .skill-learning-page .container,
+  .skill-learning-page .hbb-section {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  .lab-instruments-grid,
+  .instrument-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
@@ -98,6 +142,12 @@ main .container {
 
 @media (max-width: 480px) {
   .container-fluid {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  
+  .skill-learning-page .container,
+  .skill-learning-page .hbb-section {
     padding-left: 0.5rem !important;
     padding-right: 0.5rem !important;
   }

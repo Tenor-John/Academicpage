@@ -1,0 +1,33 @@
+{{ define "main" }}
+<div class="skill-learning-page container-fluid">
+  <div class="max-width-none section-content">
+    {{ range .Params.sections }}
+      {{ $block := . }}
+      {{ $bg := $block.design.background }}
+      {{ $style := "" }}
+      
+      {{ with $bg.color }}
+        {{ $style = printf "background-color: %s;" . | $style }}
+      {{ end }}
+      
+      <section class="hbb-section" {{ with $style }}style="{{ . | safeCSS }}"{{ end }}>
+        <div class="container-fluid">
+          {{ if eq $block.block "markdown" }}
+            <div class="max-w-prose mx-auto">
+              {{ if $block.content.title }}
+                <div class="mb-6 text-3xl font-bold text-gray-900 dark:text-white">{{ $block.content.title | markdownify }}</div>
+              {{ end }}
+              
+              {{ if $block.content.text }}
+                <div class="prose prose-slate lg:prose-xl dark:prose-invert max-w-none">
+                  {{ $block.content.text | markdownify }}
+                </div>
+              {{ end }}
+            </div>
+          {{ end }}
+        </div>
+      </section>
+    {{ end }}
+  </div>
+</div>
+{{ end }}
