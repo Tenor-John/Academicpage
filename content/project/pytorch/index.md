@@ -35,3 +35,15 @@ This project focuses on studying the mechanism of electrocatalytic CO2 reduction
 - VASP软件包
 - 反应路径分析
 - 电子结构分析
+
+## 研究视频展示 | Research Video
+
+### 计算过程演示
+{{< video src="/videos/dft-calculation-demo.mp4" width="90%" caption="DFT计算过程演示 - CO2在催化剂表面的吸附和反应" >}}
+
+### 结果可视化
+{{< video src="/videos/reaction-pathway.mp4" width="90%" caption="反应路径动画展示 - CO2还原的各个步骤" >}}
+
+## 实验验证 | Experimental Validation
+
+{{< video src="/videos/electrochemical-test.mp4" width="80%" caption="电化学测试实验 - 线性扫描伏安法(LSV)测试" >}}

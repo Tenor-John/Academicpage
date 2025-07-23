@@ -16,6 +16,9 @@ main:
   - name: 经历 | Experience
     url: experience/
     weight: 40
+  - name: 研究视频 | Videos
+    url: videos/
+    weight: 45
   - name: 教学 | Teaching
     url: teaching/
     weight: 50

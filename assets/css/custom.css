@@ -1,0 +1,45 @@
+/* Custom styles for video content */
+.video-container {
+  position: relative;
+  margin: 2rem 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.video-container video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.video-caption {
+  text-align: center;
+  font-style: italic;
+  color: #666;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* Responsive video containers */
+@media (max-width: 768px) {
+  .video-container {
+    margin: 1rem 0;
+  }
+  
+  .video-caption {
+    font-size: 0.8rem;
+  }
+}
+
+/* Video gallery grid */
+.video-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.video-gallery .video-container {
+  margin: 0;
+}

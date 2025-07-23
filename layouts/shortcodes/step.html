@@ -1,0 +1,27 @@
+{{- $step := .Get "step" -}}
+{{- $title := .Get "title" -}}
+{{- $content := .Inner -}}
+
+<div class="tutorial-step" style="display: flex; margin: 2rem 0; padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #007bff;">
+  <div class="step-number" style="
+    background: #007bff; 
+    color: white; 
+    width: 30px; 
+    height: 30px; 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-weight: bold; 
+    margin-right: 1rem; 
+    flex-shrink: 0;
+  ">
+    {{ $step }}
+  </div>
+  <div class="step-content" style="flex: 1;">
+    {{ with $title }}
+    <h4 style="margin: 0 0 0.5rem 0; color: #007bff;">{{ . }}</h4>
+    {{ end }}
+    <div>{{ $content | markdownify }}</div>
+  </div>
+</div>

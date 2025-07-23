@@ -1,0 +1,60 @@
+{{- $title := .Get "title" -}}
+{{- $content := .Inner -}}
+{{- $type := .Get "type" | default "info" -}}
+{{- $icon := .Get "icon" | default "info" -}}
+
+{{- $iconMap := dict 
+  "warning" "⚠️"
+  "danger" "🚨"
+  "info" "ℹ️"
+  "tip" "💡"
+  "note" "📝"
+  "important" "❗"
+  "safety" "🛡️"
+  "step" "👉"
+  "video" "🎥"
+  "download" "📥"
+-}}
+
+{{- $bgColorMap := dict
+  "warning" "#fff3cd"
+  "danger" "#f8d7da"
+  "info" "#d1ecf1"
+  "tip" "#d4edda"
+  "note" "#e2e3e5"
+  "important" "#ffeaa7"
+  "safety" "#fdcb6e"
+  "step" "#74b9ff"
+  "video" "#a29bfe"
+  "download" "#00b894"
+-}}
+
+{{- $borderColorMap := dict
+  "warning" "#ffeaa7"
+  "danger" "#f5c6cb"
+  "info" "#bee5eb"
+  "tip" "#c3e6cb"
+  "note" "#d6d8db"
+  "important" "#ffd93d"
+  "safety" "#e17055"
+  "step" "#0984e3"
+  "video" "#6c5ce7"
+  "download" "#00a085"
+-}}
+
+<div class="tutorial-callout tutorial-{{ $type }}" 
+     style="background-color: {{ index $bgColorMap $type }}; 
+            border-left: 4px solid {{ index $borderColorMap $type }}; 
+            padding: 1rem; 
+            margin: 1.5rem 0; 
+            border-radius: 4px;">
+  {{ with $title }}
+  <div class="callout-title" style="font-weight: bold; margin-bottom: 0.5rem; display: flex; align-items: center;">
+    <span style="margin-right: 0.5rem;">{{ index $iconMap $type }}</span>
+    {{ . }}
+  </div>
+  {{ end }}
+  <div class="callout-content">
+    {{ $content | markdownify }}
+  </div>
+</div>

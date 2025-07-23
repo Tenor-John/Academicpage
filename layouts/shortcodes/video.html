@@ -1,0 +1,23 @@
+{{- $src := .Get "src" -}}
+{{- $width := .Get "width" | default "100%" -}}
+{{- $height := .Get "height" | default "auto" -}}
+{{- $poster := .Get "poster" -}}
+{{- $caption := .Get "caption" -}}
+
+<div class="video-container" style="margin: 1rem 0;">
+  <video 
+    width="{{ $width }}" 
+    height="{{ $height }}" 
+    controls 
+    {{ with $poster }}poster="{{ . }}"{{ end }}
+    style="max-width: 100%; height: auto;"
+  >
+    <source src="{{ $src }}" type="video/mp4">
+    <p>您的浏览器不支持视频播放。请 <a href="{{ $src }}">下载视频</a> 观看。</p>
+  </video>
+  {{ with $caption }}
+  <p class="video-caption" style="text-align: center; font-style: italic; margin-top: 0.5rem;">
+    {{ . }}
+  </p>
+  {{ end }}
+</div>
