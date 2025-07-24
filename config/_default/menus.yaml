@@ -19,15 +19,6 @@ main:
   - name: 技能学习 | Skill Learning
     url: teaching/
     weight: 45
-    hasChildren: true
-  - name: 实验室仪器 | Instruments
-    url: /teaching/laboratory-instruments/
-    parent: teaching/
-    weight: 46
-  - name: 实验教程 | Tutorials
-    url: /teaching/tutorials/
-    parent: teaching/
-    weight: 47
   - name: 研究视频 | Videos
     url: videos/
     weight: 50
