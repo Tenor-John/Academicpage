@@ -19,6 +19,9 @@ main:
   - name: 技能学习 | Skill Learning
     url: teaching/
     weight: 45
+  - name: 工具库 | Tools
+    url: tools/
+    weight: 48
   - name: 研究视频 | Videos
     url: videos/
     weight: 50

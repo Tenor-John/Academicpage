@@ -1,4 +1,5 @@
 ---
+type: docs
 title: 实验室仪器使用指南
 summary: 实验室常用仪器的操作指导
 date: 2024-07-23

@@ -1,0 +1,26 @@
+{{ define "main" }}
+<div class="teaching-page-wrap">
+  <div class="teaching-inner teaching-single-wrap">
+
+    <div class="tk-summary-card">
+      <nav class="teaching-breadcrumb">
+        <a href="{{ .Parent.Permalink }}">← 返回</a>
+      </nav>
+      {{ with .Params.tags }}
+      <div class="tk-tags" style="margin-top: 0.75rem;">
+        {{ range . }}<span class="tk-tag">{{ . }}</span>{{ end }}
+      </div>
+      {{ end }}
+      <h1 class="tk-title" style="font-size: 1.4rem; margin-top: 0.6rem;">{{ .Title }}</h1>
+      {{ with .Params.summary }}
+      <p class="tk-summary tk-summary-full">{{ . }}</p>
+      {{ end }}
+    </div>
+
+    <article class="teaching-article prose dark:prose-invert">
+      {{ .Content }}
+    </article>
+
+  </div>
+</div>
+{{ end }}

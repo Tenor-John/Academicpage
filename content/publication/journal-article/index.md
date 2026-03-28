@@ -1,18 +1,24 @@
 ---
-title: "电催化CO2还原中单原子催化剂的设计与机理研究"
+title: "Nb-doped FeMnSiCrNi coatings: microstructure, phase transformation, shape recovery rate, wear and corrosion resistance"
 authors:
+- Qi Zhang
+- Peng Xu
 - admin
-- 李明
-- 王教授
+- Shaobo Li
+- Chuan Yu
+- Daqing Yang
 author_notes:
-- "第一作者"
-- "共同作者"
-- "通讯作者"
-date: "2024-03-15T00:00:00Z"
-doi: "10.1021/example.2024.001"
+- ""
+- ""
+- ""
+- ""
+- ""
+- "Corresponding author"
+date: "2022-12-01T00:00:00Z"
+doi: "10.1016/j.ijleo.2022.170202"
 
 # Schedule page publish date (NOT publication's date).
-publishDate: "2024-03-15T00:00:00Z"
+publishDate: "2022-11-08T00:00:00Z"
 
 # Publication type.
 # Accepts a single type but formatted as a YAML list (for Hugo requirements).
@@ -20,26 +26,27 @@ publishDate: "2024-03-15T00:00:00Z"
 publication_types: ["article-journal"]
 
 # Publication name and optional abbreviated publication name.
-publication: "*Catalysis Science & Technology, 14*(8)"
-publication_short: "*Catal. Sci. Technol.*"
+publication: "*Optik, 271*, 170202"
+publication_short: "*Optik*"
 
-abstract: 本研究通过密度泛函理论（DFT）计算系统研究了单原子催化剂在电催化CO2还原反应中的活性机理。我们设计了多种载体负载的单原子催化剂，并通过计算分析了其电子结构、反应路径和催化性能。研究发现，金属原子的d轨道电子构型和载体的电子性质协同决定了催化剂的活性和选择性。该工作为高效CO2还原催化剂的设计提供了理论指导。
+abstract: This study investigates the effect of Nb doping on laser-cladded FeMnSiCrNi shape memory alloy coatings. Niobium-doped composite coatings were fabricated by laser cladding, and their microstructure, phase transformation behavior, shape memory recovery rate, wear resistance, and corrosion resistance were systematically characterized. The results show that the formation of Nb₃Si significantly impedes the movement of dislocations, improving the anti-wear performance and microhardness of the coating. At the optimal doping level of 5 wt% Nb, the coatings exhibit enhanced corrosion resistance with doubled charge transfer resistance values and an improved shape memory recovery rate reaching 4.38% at 5% deformation.
 
 # Summary. An optional shortened abstract.
-summary: 系统研究了单原子催化剂在电催化CO2还原中的机理，为高效催化剂设计提供理论指导。
+summary: Systematic study of Nb-doped FeMnSiCrNi shape memory alloy coatings fabricated by laser cladding, revealing improved microhardness, wear resistance, corrosion resistance, and shape recovery performance at 5 wt% Nb doping.
 
 tags:
-- 电催化
-- CO2还原
-- 单原子催化剂
-- DFT计算
+- Shape Memory Alloy
+- Laser Cladding
+- Wear Resistance
+- Corrosion Resistance
+- FeMnSiCrNi
 featured: true
 
-# links:
-# - name: ""
-#   url: ""
-url_pdf: http://arxiv.org/pdf/1512.04133v1
-url_code: 'https://github.com/HugoBlox/hugo-blox-builder'
+links:
+- name: "Journal Page"
+  url: "https://www.sciencedirect.com/science/article/pii/S0030402622014607"
+url_pdf: ''
+url_code: ''
 url_dataset: ''
 url_poster: ''
 url_project: ''
@@ -48,33 +55,15 @@ url_source: ''
 url_video: ''
 
 # Featured image
-# To use, add an image named `featured.jpg/png` to your page's folder. 
+# To use, add an image named `featured.jpg/png` to your page's folder.
 image:
-  caption: 'Image credit: [**Unsplash**](https://unsplash.com/photos/jdD8gXaTZsc)'
+  caption: ''
   focal_point: ""
   preview_only: false
 
 # Associated Projects (optional).
-#   Associate this publication with one or more of your projects.
-#   Simply enter your project's folder or file name without extension.
-#   E.g. `internal-project` references `content/project/internal-project/index.md`.
-#   Otherwise, set `projects: []`.
 projects: []
 
 # Slides (optional).
-#   Associate this publication with Markdown slides.
-#   Simply enter your slide deck's filename without extension.
-#   E.g. `slides: "example"` references `content/slides/example/index.md`.
-#   Otherwise, set `slides: ""`.
-slides: example
+slides: ""
 ---
-
-{{% callout note %}}
-Click the *Cite* button above to demo the feature to enable visitors to import publication metadata into their reference management software.
-{{% /callout %}}
-
-{{% callout note %}}
-Create your slides in Markdown - click the *Slides* button to check out the example.
-{{% /callout %}}
-
-Add the publication's **full text** or **supplementary notes** here. You can use rich formatting such as including [code, math, and images](https://docs.hugoblox.com/content/writing-markdown-latex/).

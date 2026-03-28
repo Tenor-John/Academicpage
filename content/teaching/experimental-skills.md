@@ -1,4 +1,5 @@
 ---
+type: docs
 title: 实验技能培训
 summary: 基础实验技能和方法训练
 date: 2024-07-23

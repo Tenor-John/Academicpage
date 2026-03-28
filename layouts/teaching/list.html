@@ -1,0 +1,42 @@
+{{ define "main" }}
+<div class="teaching-page-wrap">
+  <div class="teaching-inner">
+
+    <div class="teaching-page-header">
+      {{ if .Parent }}
+      <nav class="teaching-breadcrumb">
+        <a href="{{ .Parent.Permalink }}">← 返回</a>
+      </nav>
+      {{ end }}
+      <h1 class="teaching-page-title" style="{{ if .Parent }}margin-top: 0.75rem;{{ end }}">{{ .Title }}</h1>
+      {{ with .Params.summary }}<p class="teaching-page-subdesc">{{ . }}</p>{{ end }}
+      {{ with .Content }}<div class="teaching-page-desc">{{ . }}</div>{{ end }}
+    </div>
+
+    <div class="tk-card-grid">
+      {{ range (.RegularPages.ByTitle) }}
+      <a href="{{ .Permalink }}" class="tk-card">
+        {{ with .Params.tags }}
+        <div class="tk-tags">{{ range . }}<span class="tk-tag">{{ . }}</span>{{ end }}</div>
+        {{ end }}
+        <h3 class="tk-title">{{ .Title }}</h3>
+        {{ with .Params.summary }}<p class="tk-summary">{{ . }}</p>{{ end }}
+        {{ if not .Params.summary }}{{ with .Summary }}<p class="tk-summary">{{ . }}</p>{{ end }}{{ end }}
+      </a>
+      {{ end }}
+
+      {{ range .Sections }}
+      <a href="{{ .Permalink }}" class="tk-card tk-card-section">
+        {{ with .Params.tags }}
+        <div class="tk-tags">{{ range . }}<span class="tk-tag">{{ . }}</span>{{ end }}</div>
+        {{ end }}
+        <h3 class="tk-title">{{ .Title }}</h3>
+        {{ with .Params.summary }}<p class="tk-summary">{{ . }}</p>{{ end }}
+        <span class="tk-count">{{ len .Pages }} 篇</span>
+      </a>
+      {{ end }}
+    </div>
+
+  </div>
+</div>
+{{ end }}

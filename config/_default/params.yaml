@@ -9,7 +9,7 @@ marketing:
     site_type: Person
     local_business_type: ''
     org_name: '中国科学技术大学'
-    description: '江韬的学术主页 - 博士研究生，研究方向：电催化、光催化、计算化学 | Tor John Academic Homepage - PhD Student in Electrocatalysis, Photocatalysis, and Computational Chemistry'
+    description: '江韬的学术主页 - 博士研究生，研究方向：电催化、光催化、计算化学 | Tao Jiang Academic Homepage - PhD Student in Electrocatalysis, Photocatalysis, and Computational Chemistry'
     twitter: ''
   analytics:
     google_analytics: ''
@@ -30,12 +30,12 @@ header:
     show_search: true
     show_theme_chooser: true
     logo:
-      text: "江韬 | Tor John"
+      text: "江韬 | Tao Jiang"
 
 # Site footer
 footer:
   copyright:
-    notice: '© {year} 江韬 (Tor John). This work is licensed under {license}'
+    notice: '© {year} 江韬 (Tao Jiang). This work is licensed under {license}'
     license:
       enable: true
       allow_derivatives: false

@@ -1,0 +1,46 @@
+{{ define "main" }}
+<div class="teaching-page-wrap">
+  <div class="teaching-inner">
+    <div class="teaching-page-header">
+      <h1 class="teaching-page-title">{{ .Title }}</h1>
+      {{ with .Params.summary }}<p class="teaching-page-subdesc">{{ . }}</p>{{ end }}
+    </div>
+
+    {{ $tools := .Params.tools }}
+    {{ if $tools }}
+      {{ $categories := slice }}
+      {{ range $tools }}
+        {{ $categories = $categories | append .cat }}
+      {{ end }}
+      {{ $categories = $categories | uniq }}
+
+      {{ range $categories }}
+        {{ $cat := . }}
+        <div class="tools-category">
+          <h2 class="tools-cat-title">{{ $cat }}</h2>
+          <div class="tk-card-grid">
+            {{ range $tools }}
+              {{ if eq .cat $cat }}
+              <a href="{{ .url }}" target="_blank" rel="noopener noreferrer" class="tk-card tools-card">
+                <div class="tools-name-row">
+                  <h3 class="tk-title tools-tool-name">{{ .name }}</h3>
+                  {{ with .icon }}
+                    {{ if hasPrefix . "fa-" }}
+                      <i class="{{ . }} tools-icon"></i>
+                    {{ else }}
+                      <img src="{{ . }}" class="tools-icon-img" alt="" aria-hidden="true" />
+                    {{ end }}
+                  {{ end }}
+                </div>
+                {{ with .desc }}<p class="tk-summary">{{ . }}</p>{{ end }}
+                <span class="tools-external-hint">↗ 外部链接</span>
+              </a>
+              {{ end }}
+            {{ end }}
+          </div>
+        </div>
+      {{ end }}
+    {{ end }}
+  </div>
+</div>
+{{ end }}

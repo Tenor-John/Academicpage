@@ -1,13 +1,13 @@
 ---
 # Display name
-title: 江韬 (Tor John)
+title: Tao Jiang (江韬)
 
 # Name pronunciation (optional)
-#name_pronunciation: 
+name_pronunciation: also known as Tor John
 
 # Full name (for SEO)
-first_name: Tor
-last_name: John
+first_name: Tao
+last_name: Jiang
 
 # Status emoji
 status:
@@ -155,7 +155,7 @@ awards:
 
 我是江韬，目前在中国科学技术大学动态化学实验室攻读化学博士学位。我的研究兴趣主要集中在电催化、光催化和计算化学领域。
 
-I am Tor John, currently pursuing a PhD in Chemistry at the Dynamic Chemistry Laboratory, University of Science and Technology of China. My research interests focus on electrocatalysis, photocatalysis, and computational chemistry.
+I am Tao Jiang, currently pursuing a PhD in Chemistry at the Dynamic Chemistry Laboratory, University of Science and Technology of China. My research interests focus on electrocatalysis, photocatalysis, and computational chemistry.
 
 我的研究工作主要围绕催化反应机理的理论计算和实验验证，致力于设计高效的催化材料用于能源转换应用。通过结合密度泛函理论计算和实验表征手段，我希望能够深入理解催化过程的本质，为开发新型高效催化剂提供理论指导。
 
