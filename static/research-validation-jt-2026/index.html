@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow,noarchive" />
+  <title>科研问题导航系统｜外部验证</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --text: #162033;
+      --muted: #647084;
+      --line: #e3e7ef;
+      --accent: #2563eb;
+      --accent-soft: #eff6ff;
+      --ok: #059669;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.72;
+    }
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--line);
+      padding: 22px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .wrap { max-width: 880px; margin: 0 auto; }
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    .subtitle { color: var(--muted); font-size: 14px; margin: 0; }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    nav button {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 8px 14px;
+      cursor: pointer;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    nav button.active {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    main { padding: 24px 20px 70px; }
+    .phase { display: none; }
+    .phase.active { display: block; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 24px rgba(17, 24, 39, 0.04);
+    }
+    .notice {
+      background: var(--accent-soft);
+      border-color: #bfdbfe;
+    }
+    .warning {
+      background: #fffbeb;
+      border-color: #fde68a;
+    }
+    h2 { margin: 0 0 14px; font-size: 20px; }
+    h3 { margin: 18px 0 10px; font-size: 16px; }
+    label { display: block; font-weight: 650; margin: 14px 0 6px; }
+    .hint { color: var(--muted); font-size: 13px; margin: 2px 0 8px; }
+    input[type="text"], input[type="date"], textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 11px 12px;
+      font: inherit;
+      background: #fff;
+    }
+    textarea { min-height: 112px; resize: vertical; }
+    .options { display: grid; gap: 8px; margin: 8px 0 12px; }
+    .option {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 10px;
+      background: #fff;
+    }
+    .option label { margin: 0; font-weight: 500; }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-weight: 750;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn.secondary { background: #e5e7eb; color: #111827; }
+    .btn.success { background: var(--ok); }
+    .btn.warn { background: var(--warn); }
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 12px;
+      font-weight: 750;
+      margin-left: 6px;
+    }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .readonly {
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 14px;
+      white-space: pre-wrap;
+      color: #334155;
+    }
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 20px;
+    }
+    @media (max-width: 720px) {
+      .two { grid-template-columns: 1fr; }
+      header { position: static; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>科研问题导航系统｜外部验证</h1>
+      <p class="subtitle">隐藏测试页：请只通过专属链接访问。你不需要提前学习系统。</p>
+      <nav>
+        <button class="active" data-phase="intro">说明</button>
+        <button data-phase="pre">1 招募筛选</button>
+        <button data-phase="problem">2 原始问题</button>
+        <button data-phase="test">3 正式测试</button>
+        <button data-phase="feedback">4 测后反馈</button>
+        <button data-phase="followup">5 执行回访</button>
+        <button data-phase="export">导出</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="phase active" id="intro">
+      <div class="card notice">
+        <h2>请先读这一段</h2>
+        <p>本测试中的“科研方法论系统”是一套帮助研究者梳理科研卡点、明确下一步行动的导航工具。你不需要提前了解或学习这套系统，也不需要按任何固定格式包装你的问题。</p>
+        <p>请只用你平时会使用的语言描述真实科研困扰。测试评估的是这个工具能不能从自然问题中完成追问、分流和行动建议，不是评估你的科研能力。</p>
+      </div>
+      <div class="card warning">
+        <h2>隐私与安全</h2>
+        <ul>
+          <li>可以跳过任何不愿回答的问题。</li>
+          <li>不要填写姓名、导师姓名、单位、课题组名称或具体课题机密。</li>
+          <li>未发表数据可以模糊化描述，例如“某类材料”“某个计算体系”。</li>
+          <li>本测试不提供心理诊断或治疗；如涉及明显身心健康或安全风险，请优先寻求现实支持。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="phase" id="pre">
+      <form class="card" name="validation-pretest" method="POST" data-netlify="true">
+        <input type="hidden" name="form-name" value="validation-pretest" />
+        <h2>1 招募筛选 <span class="pill">测试前填写</span></h2>
+        <div class="two">
+          <div>
+            <label for="testerId">测试者编号</label>
+            <input id="testerId" name="testerId" type="text" placeholder="例如 T001，可由主持人提供" />
+          </div>
+          <div>
+            <label for="date">填写日期</label>
+            <input id="date" name="date" type="date" />
+          </div>
+        </div>
+        <label for="stage">当前科研阶段</label>
+        <select id="stage" name="stage">
+          <option value="">请选择</option>
+          <option>本科生</option><option>硕士低年级</option><option>硕士高年级</option>
+          <option>博士低年级</option><option>博士高年级</option><option>博士后</option>
+          <option>青年教师 / PI</option><option>企业/医院/研究院科研人员</option><option>其他</option>
+        </select>
+        <label for="discipline">学科或研究方向</label>
+        <input id="discipline" name="discipline" type="text" placeholder="例如：电化学、材料、计算化学、医学、管理学..." />
+        <div class="two">
+          <div>
+            <label for="years">科研年限</label>
+            <select id="years" name="years">
+              <option value="">请选择</option><option>不足 1 年</option><option>1–3 年</option><option>3–5 年</option><option>5 年以上</option>
+            </select>
+          </div>
+          <div>
+            <label for="papers">论文经验</label>
+            <select id="papers" name="papers">
+              <option value="">请选择</option><option>尚未发表</option><option>已发表 1 篇</option><option>已发表 2–3 篇</option><option>已发表 4 篇以上</option>
+            </select>
+          </div>
+        </div>
+        <label for="familiarity">在填写本问卷前，你是否已经接触过这套科研方法论系统？</label>
+        <p class="hint">本测试不要求你提前了解系统；如果你完全没接触过，反而更适合作为陌生用户样本。</p>
+        <select id="familiarity" name="familiarity">
+          <option value="">请选择</option>
+          <option>完全没有接触过</option>
+          <option>只听说过，但没有阅读或使用</option>
+          <option>看过少量材料</option>
+          <option>使用过其中一部分</option>
+          <option>比较熟悉</option>
+        </select>
+        <label for="willing">是否愿意参加一次约 30–45 分钟的问题处理测试/访谈？</label>
+        <select id="willing" name="willing">
+          <option value="">请选择</option>
+          <option>愿意</option>
+          <option>可以，但需要另约时间</option>
+          <option>只愿意提交问题，不参与正式测试</option>
+          <option>暂不参加</option>
+        </select>
+        <div class="actions">
+          <button class="btn" type="submit">提交招募筛选</button>
+          <button class="btn secondary" type="button" onclick="showPhase('problem')">继续填写原始问题</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="phase" id="problem">
+      <form class="card" name="validation-problem" method="POST" data-netlify="true">
+        <input type="hidden" name="form-name" value="validation-problem" />
+        <h2>2 原始问题 <span class="pill">正式测试只读取这一题</span></h2>
+        <label for="rawProblem">请用你平时会使用的语言描述当前科研卡点</label>
+        <p class="hint">不要为了测试而包装成“标准科研问题”。如果涉及未发表内容，请模糊化。</p>
+        <textarea id="rawProblem" name="rawProblem" placeholder="例如：我有一些数据，但不知道能不能写成论文；我不知道这个课题值不值得继续做；我快毕业了但成果很散..."></textarea>
+        <label for="duration">这个问题已经困扰你多久？ <span class="pill">封存</span></label>
+        <select id="duration" name="duration">
+          <option value="">请选择</option><option>1 周以内</option><option>1–4 周</option><option>1–3 个月</option><option>3 个月以上</option>
+        </select>
+        <label for="lastAction">最近一次为解决它做了什么？ <span class="pill">封存</span></label>
+        <textarea id="lastAction" name="lastAction" placeholder="正式测试前不提供给系统，只用于测试后核对追问是否有效。"></textarea>
+        <label for="deadline">当前是否有明确截止时间？ <span class="pill">封存</span></label>
+        <select id="deadline" name="deadline">
+          <option value="">请选择</option><option>无明确截止时间</option><option>7 天以内</option><option>8–30 天</option>
+          <option>1–3 个月</option><option>3–6 个月</option><option>6 个月以上</option><option>已经非常紧急或过期</option>
+        </select>
+        <label for="auth">是否同意匿名用于测试报告？</label>
+        <select id="auth" name="auth">
+          <option value="">请选择</option><option>可以匿名写入</option><option>可以写入，但需要我确认措辞</option>
+          <option>只允许内部分析，不写入报告</option><option>不希望写入</option>
+        </select>
+        <div class="actions">
+          <button class="btn" type="submit">提交原始问题</button>
+          <button class="btn secondary" type="button" onclick="showPhase('test')">进入正式测试记录</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="phase" id="test">
+      <div class="card notice">
+        <h2>3 正式测试 <span class="pill">主持人/AI 使用</span></h2>
+        <p>正式测试不是问卷。它是用上一步的原始问题，进行 3–5 轮必要追问，最后输出一个下一步具体动作和可检查结果。</p>
+        <p>当前页面先提供“人工主持版”的记录框。后续可以把这里接入 Netlify Function + OpenAI API，让 AI agent 自动追问和生成结果。</p>
+      </div>
+      <form class="card" name="validation-session" method="POST" data-netlify="true">
+        <input type="hidden" name="form-name" value="validation-session" />
+        <label for="sessionLog">正式测试记录</label>
+        <textarea id="sessionLog" name="sessionLog" placeholder="主持人记录：原始问题 → 追问1 → 回答1 → 追问2 → 回答2 → 处理方向 → 下一步具体动作 → 可检查结果"></textarea>
+        <label for="resultSummary">发给被访者的测试结果摘要</label>
+        <textarea id="resultSummary" name="resultSummary" placeholder="请用普通话写清楚：刚才先从什么方向处理、为什么、下一步具体做什么、做完拿出什么结果。"></textarea>
+        <div class="actions">
+          <button class="btn" type="submit">提交正式测试记录</button>
+          <button class="btn secondary" type="button" onclick="showPhase('feedback')">进入测后反馈</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="phase" id="feedback">
+      <form class="card" name="validation-feedback" method="POST" data-netlify="true">
+        <input type="hidden" name="form-name" value="validation-feedback" />
+        <h2>4 测后反馈 <span class="pill">测试后填写</span></h2>
+        <p class="hint">请在看完“测试结果摘要”后填写。这里的“处理方向”指刚才先从哪里处理你的问题；“下一步具体动作”指 1–2 天内能做的一件事；“可检查结果”指做完后能拿出来看的东西。</p>
+        <label for="understand">我能理解刚才为什么先从这个方向处理我的问题</label>
+        <select id="understand" name="understand">
+          <option value="">请选择</option><option>完全同意</option><option>基本同意</option><option>不太同意</option><option>完全不同意</option>
+        </select>
+        <label for="match">这个处理方向与我的真实问题相符</label>
+        <select id="match" name="match">
+          <option value="">请选择</option><option>完全相符</option><option>大体相符</option><option>有点偏</option><option>完全不相符</option>
+        </select>
+        <label for="missed">有没有漏掉你认为最重要的卡点？</label>
+        <textarea id="missed" name="missed" placeholder="如果有，请写出来；如果没有，可以写“没有”。"></textarea>
+        <label for="actionFit">最后建议你的下一步具体动作，是否符合现实条件？</label>
+        <select id="actionFit" name="actionFit">
+          <option value="">请选择</option><option>符合，可以直接做</option><option>基本符合，需要小幅调整</option>
+          <option>逻辑合理，但现实条件不允许</option><option>不符合现实条件</option>
+        </select>
+        <label for="acceptance">刚才最后建议你的动作，你愿意执行吗？</label>
+        <select id="acceptance" name="acceptance">
+          <option value="">请选择</option><option>A0：愿意直接执行</option><option>A1：小幅调整后愿意执行</option>
+          <option>A2：逻辑合理，但现实条件不允许</option><option>A3：我认为动作没有解决真实问题</option>
+        </select>
+        <label for="useful">哪一步最有用？</label>
+        <textarea id="useful" name="useful"></textarea>
+        <label for="confusing">哪一步最卡、最难懂或最像废话？</label>
+        <textarea id="confusing" name="confusing"></textarea>
+        <div class="actions">
+          <button class="btn" type="submit">提交测后反馈</button>
+          <button class="btn secondary" type="button" onclick="showPhase('followup')">进入执行回访</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="phase" id="followup">
+      <form class="card" name="validation-followup" method="POST" data-netlify="true">
+        <input type="hidden" name="form-name" value="validation-followup" />
+        <h2>5 1–7 天执行回访</h2>
+        <label for="executed">测试后，你是否执行了刚才建议的下一步具体动作？</label>
+        <select id="executed" name="executed">
+          <option value="">请选择</option><option>已完整执行</option><option>执行了一部分</option><option>还没执行，但计划执行</option><option>没有执行，也暂时不打算执行</option>
+        </select>
+        <label for="deliverable">是否形成了可检查结果？</label>
+        <select id="deliverable" name="deliverable">
+          <option value="">请选择</option><option>已形成</option><option>形成了一部分</option><option>还没有</option>
+        </select>
+        <label for="followupNote">补充说明</label>
+        <textarea id="followupNote" name="followupNote" placeholder="如果没有执行，主要原因是什么？执行后是否更清楚下一步？"></textarea>
+        <div class="actions">
+          <button class="btn" type="submit">提交执行回访</button>
+          <button class="btn secondary" type="button" onclick="showPhase('export')">导出数据</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="phase" id="export">
+      <div class="card">
+        <h2>导出本页填写数据</h2>
+        <p>如果暂时没有接后端，可以让测试者或主持人点击下面按钮，把本页数据导出为 JSON，手动发回。</p>
+        <div class="actions">
+          <button class="btn success" type="button" onclick="downloadJson()">导出 JSON</button>
+          <button class="btn secondary" type="button" onclick="copySummary()">复制摘要</button>
+        </div>
+        <h3>摘要预览</h3>
+        <pre class="readonly" id="preview">点击“复制摘要”或切换到本页时生成。</pre>
+      </div>
+    </section>
+  </main>
+
+  <footer>Hidden validation page · noindex · do not share publicly</footer>
+
+  <script>
+    const phases = [...document.querySelectorAll(".phase")].map(x => x.id);
+    document.querySelectorAll("nav button").forEach(btn => {
+      btn.addEventListener("click", () => showPhase(btn.dataset.phase));
+    });
+    function showPhase(id) {
+      document.querySelectorAll(".phase").forEach(x => x.classList.toggle("active", x.id === id));
+      document.querySelectorAll("nav button").forEach(x => x.classList.toggle("active", x.dataset.phase === id));
+      if (id === "export") renderPreview();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    function collectData() {
+      const data = { collectedAt: new Date().toISOString(), page: "research-validation-jt-2026" };
+      document.querySelectorAll("input, textarea, select").forEach(el => {
+        if (!el.name && !el.id) return;
+        const key = el.name || el.id;
+        if (el.type === "hidden") return;
+        if (el.type === "radio" || el.type === "checkbox") {
+          if (!data[key]) data[key] = [];
+          if (el.checked) data[key].push(el.value);
+          return;
+        }
+        data[key] = el.value;
+      });
+      return data;
+    }
+    function makeSummary(data = collectData()) {
+      return [
+        `测试者编号：${data.testerId || "未填"}`,
+        `科研阶段：${data.stage || "未填"}`,
+        `学科方向：${data.discipline || "未填"}`,
+        "",
+        "原始科研问题：",
+        data.rawProblem || "未填",
+        "",
+        "正式测试结果摘要：",
+        data.resultSummary || "未填",
+        "",
+        `测后接受度：${data.acceptance || "未填"}`,
+        `是否执行：${data.executed || "未填"}`,
+        `是否形成可检查结果：${data.deliverable || "未填"}`
+      ].join("\\n");
+    }
+    function renderPreview() {
+      document.getElementById("preview").textContent = makeSummary();
+    }
+    function downloadJson() {
+      const data = collectData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `research_validation_${data.testerId || "anonymous"}_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+    async function copySummary() {
+      const text = makeSummary();
+      document.getElementById("preview").textContent = text;
+      try {
+        await navigator.clipboard.writeText(text);
+        alert("摘要已复制。");
+      } catch {
+        alert("复制失败，请手动复制摘要预览。");
+      }
+    }
+  </script>
+</body>
+</html>
