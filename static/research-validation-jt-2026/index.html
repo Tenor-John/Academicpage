@@ -396,7 +396,7 @@
   <script>
     // 部署 Apps Script Web App 后，把 URL 粘贴到这里。
     // 形如：https://script.google.com/macros/s/AKfycbxxxxxxxxxxxxxxxx/exec
-    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwziMOwds87TpR0i520QBdgPajdrT4K51XNiHJmiqFSBLM4rCN29wg8PbJ-oWPY0ReH/exec";
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxXJ86wdGcqyVJ21AT7_5wlSFvOxsiLeGIqvWHHLwJZCNPDkDxMYsFwCUXVYeyOQ-Hx/exec";
     let aiHistory = [];
     let aiTurnCount = 0;
 
@@ -504,8 +504,21 @@
     }
     function handleAiResult(result) {
       if (!result || !result.type) {
-        appendAiMessage("meta", `AI 返回格式不完整，需要人工复核。\n原始返回：${JSON.stringify(result || {}, null, 2)}`);
-        document.getElementById("resultSummary").value = JSON.stringify(result || {}, null, 2);
+        const raw = JSON.stringify(result || {}, null, 2);
+        const msg = [
+          "AI 返回格式不完整，需要人工复核。",
+          "",
+          "这通常表示 Apps Script 后端还没有更新到最新版，或上游 AI 接口返回了空对象。",
+          "请确认：",
+          "1. Apps Script 已粘贴最新版 research-validation.gs；",
+          "2. 已重新部署 Web App 新版本；",
+          "3. Script Properties 里的 ANTHROPIC_AUTH_TOKEN / BASE_URL / MODEL 正确；",
+          "4. Apps Script 执行日志里没有 API 报错。",
+          "",
+          `原始返回：${raw}`
+        ].join("\n");
+        appendAiMessage("meta", msg);
+        document.getElementById("resultSummary").value = msg;
         return;
       }
       if (result.type === "question") {
