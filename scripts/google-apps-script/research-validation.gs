@@ -29,6 +29,8 @@
  * 7. 将部署后的 Web App URL 填入前端页面的 GAS_WEB_APP_URL
  */
 
+const APP_VERSION = '2026-07-11-ai-agent-v4-minimax-auth';
+
 const SPREADSHEET_ID = '1zeaJKth9AUHjZkifqhFcNkrprKWzqXxG-vm0vAWTXUA';
 
 const SHEET_NAMES = {
@@ -68,9 +70,32 @@ const HEADERS = [
 function doGet() {
   return jsonOutput({
     ok: true,
+    version: APP_VERSION,
     service: 'research-validation-collector',
     message: 'Apps Script endpoint is running. Use POST from the validation page.',
+    supportedActions: ['ai_step'],
   });
+}
+
+/**
+ * 手动运行一次，用于触发 Apps Script 授权。
+ *
+ * 如果 AI 调用时报：
+ * “您没有调用 UrlFetchApp.fetch 的权限”
+ * 请先在 appsscript.json 中加入 script.external_request scope，
+ * 然后在 Apps Script 编辑器里选择并运行 authorizeOnce。
+ */
+function authorizeOnce() {
+  const response = UrlFetchApp.fetch('https://www.google.com/generate_204', {
+    method: 'get',
+    muteHttpExceptions: true,
+  });
+  SpreadsheetApp.openById(SPREADSHEET_ID);
+  return {
+    ok: true,
+    status: response.getResponseCode(),
+    message: 'Authorization check completed.',
+  };
 }
 
 function doPost(e) {
@@ -196,22 +221,32 @@ function callAnthropicCompatibleMessages_(system, conversation, config) {
   }
   const base = String(config.baseUrl || '').replace(/\/+$/, '');
   const url = base.endsWith('/v1/messages') ? base : base + '/v1/messages';
+  const isMiniMax = /minimax/i.test(base);
 
   const messages = conversation.map(item => ({
     role: item.role === 'assistant' ? 'assistant' : 'user',
     content: String(item.content || ''),
   }));
 
+  const headers = isMiniMax
+    ? {
+        // MiniMax's Anthropic-compatible endpoint expects Bearer auth.
+        // Sending x-api-key may be rejected as "invalid api key".
+        'Authorization': 'Bearer ' + config.apiKey,
+        'anthropic-version': config.version,
+      }
+    : {
+        // Anthropic standard plus Bearer fallback for university/custom gateways.
+        'x-api-key': config.apiKey,
+        'anthropic-version': config.version,
+        'Authorization': 'Bearer ' + config.apiKey,
+      };
+
   const response = UrlFetchApp.fetch(url, {
     method: 'post',
     contentType: 'application/json',
     muteHttpExceptions: true,
-    headers: {
-      'x-api-key': config.apiKey,
-      'anthropic-version': config.version,
-      // Some third-party gateways accept Bearer auth even when exposing Anthropic-compatible APIs.
-      'Authorization': 'Bearer ' + config.apiKey,
-    },
+    headers: headers,
     payload: JSON.stringify({
       model: config.model,
       system: system,
