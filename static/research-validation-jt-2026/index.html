@@ -440,7 +440,7 @@
       document.getElementById("aiUserReply").value = "";
       document.getElementById("sessionLog").value = "";
       document.getElementById("resultSummary").value = "";
-      saveLocal("AI 对话已清空并暂存");
+      saveLocalSilent();
     }
     async function startAiTest() {
       const rawProblem = document.getElementById("rawProblem").value.trim();
@@ -499,7 +499,7 @@
         appendAiMessage("meta", `AI 调用失败：${err.message || err}\n如果这是跨域问题，请改用人工主持记录或导出 JSON。`);
       } finally {
         syncAiLogToFields();
-        saveLocal("AI 正式测试已暂存");
+        saveLocalSilent();
       }
     }
     function handleAiResult(result) {
@@ -551,8 +551,11 @@
       return `research-validation-jt-2026:${id}`;
     }
     function saveLocal(message = "已暂存到本页") {
-      localStorage.setItem(storageKey(), JSON.stringify(collectData()));
+      saveLocalSilent();
       alert(`${message}。如果已配置 Google Apps Script，可在“导出”页提交到 Google Sheet；否则请下载 JSON 发回。`);
+    }
+    function saveLocalSilent() {
+      localStorage.setItem(storageKey(), JSON.stringify(collectData()));
     }
     function restoreLocal() {
       const keys = Object.keys(localStorage).filter(k => k.startsWith("research-validation-jt-2026:"));
@@ -603,7 +606,7 @@
     }
     async function submitRemote(submissionType = "all") {
       const data = { ...collectData(), submissionType };
-      saveLocal("提交前已自动暂存");
+      saveLocalSilent();
       if (!GAS_WEB_APP_URL) {
         alert("还没有配置 Google Apps Script Web App URL。请先导出 JSON，或让主持人把 Apps Script URL 填进页面。");
         return false;
