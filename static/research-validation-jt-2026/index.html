@@ -533,7 +533,10 @@
         `处理方向：${result.processing_direction || ""}`,
         `关键判断：${result.key_judgment || ""}`,
         `下一步具体动作：${result.next_action || ""}`,
+        result.action_plan_72h ? `72小时行动计划：${result.action_plan_72h}` : "",
+        result.advisor_conversation_script ? `导师/合作者沟通句式：${result.advisor_conversation_script}` : "",
         `可检查结果：${result.deliverable || ""}`,
+        result.success_criteria ? `完成标准：${result.success_criteria}` : "",
         `边界/风险：${result.risk_or_boundary || ""}`,
       ].filter(Boolean).join("\n");
       aiHistory.push({ role: "assistant", content: result.summary || summary });
@@ -554,7 +557,10 @@
             processing_direction: obj.processing_direction || obj["处理方向"] || "",
             key_judgment: obj.key_judgment || obj["关键判断"] || "",
             next_action: obj.next_action || obj["下一步具体动作"] || "",
+            action_plan_72h: obj.action_plan_72h || obj["72小时行动计划"] || obj["行动计划"] || "",
+            advisor_conversation_script: obj.advisor_conversation_script || obj["导师沟通句式"] || obj["沟通句式"] || "",
             deliverable: obj.deliverable || obj["可检查结果"] || "",
+            success_criteria: obj.success_criteria || obj["完成标准"] || obj["成功标准"] || "",
             risk_or_boundary: obj.risk_or_boundary || obj["边界/风险"] || "",
             summary: obj.summary || "",
             raw_text: raw

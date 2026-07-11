@@ -170,9 +170,17 @@ function runResearchValidationAgent_(payload) {
     '输出必须是严格 JSON，不要 Markdown，不要代码块，不要解释性前缀。',
     '你的回复第一个字符必须是 {，最后一个字符必须是 }。',
     '',
+    'final 的硬性要求：',
+    '1. next_action 不能只写原则或判断，必须给出 1-2 天内能执行的编号步骤。',
+    '2. action_plan_72h 必须列出 24小时内、48小时内、72小时内分别做什么。',
+    '3. deliverable 必须是一个可检查的具体文件/表格/草案/实验结果，而不是“更清楚”。',
+    '4. 如果问题涉及导师/合作者分歧，必须给出 advisor_conversation_script，包含可直接说出口的沟通句式。',
+    '5. 必须给出 success_criteria：完成到什么程度算这一步有效。',
+    '6. 不要停在“建议换框架/明确标准/准备备选方案”，必须写清楚怎么换、问谁、拿什么材料去问。',
+    '',
     'JSON 格式二选一：',
     '{"type":"question","question":"下一问","question_type":"分流追问/执行细化追问/有效但不改变路径","reason":"为什么问这个"}',
-    '{"type":"final","processing_direction":"先从什么方向处理","key_judgment":"关键判断","next_action":"1-2天内可执行的下一步具体动作","deliverable":"做完后能拿出来看的可检查结果","followup_questions_count":数字,"risk_or_boundary":"边界/风险","summary":"发给被访者的简短结果摘要"}',
+    '{"type":"final","processing_direction":"先从什么方向处理","key_judgment":"关键判断","next_action":"编号列出1-2天内可执行步骤","action_plan_72h":"24小时/48小时/72小时行动表","advisor_conversation_script":"如果涉及导师分歧，给出可直接说出口的沟通句式；不涉及则写空字符串","deliverable":"做完后能拿出来看的可检查结果","success_criteria":"这一步做到什么程度算有效","followup_questions_count":数字,"risk_or_boundary":"边界/风险","summary":"发给被访者的简短结果摘要"}',
   ].join('\n');
 
   const conversation = [
@@ -464,14 +472,17 @@ function normalizeAiObject_(obj, rawText) {
     obj.processing_direction || obj.next_action || obj.deliverable ||
     obj.summary || obj['处理方向'] || obj['下一步具体动作'] || obj['可检查结果']
   ) {
-    return {
-      type: 'final',
-      processing_direction: obj.processing_direction || obj['处理方向'] || '',
-      key_judgment: obj.key_judgment || obj['关键判断'] || '',
-      next_action: obj.next_action || obj['下一步具体动作'] || '',
-      deliverable: obj.deliverable || obj['可检查结果'] || '',
-      followup_questions_count: obj.followup_questions_count || obj['追问数'] || '',
-      risk_or_boundary: obj.risk_or_boundary || obj['边界/风险'] || '',
+      return {
+        type: 'final',
+        processing_direction: obj.processing_direction || obj['处理方向'] || '',
+        key_judgment: obj.key_judgment || obj['关键判断'] || '',
+        next_action: obj.next_action || obj['下一步具体动作'] || '',
+        action_plan_72h: obj.action_plan_72h || obj['72小时行动计划'] || obj['行动计划'] || '',
+        advisor_conversation_script: obj.advisor_conversation_script || obj['导师沟通句式'] || obj['沟通句式'] || '',
+        deliverable: obj.deliverable || obj['可检查结果'] || '',
+        success_criteria: obj.success_criteria || obj['完成标准'] || obj['成功标准'] || '',
+        followup_questions_count: obj.followup_questions_count || obj['追问数'] || '',
+        risk_or_boundary: obj.risk_or_boundary || obj['边界/风险'] || '',
       summary: obj.summary || obj['摘要'] || rawText,
       raw_text: rawText,
     };
