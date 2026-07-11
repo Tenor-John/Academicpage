@@ -186,8 +186,7 @@
     </section>
 
     <section class="phase" id="pre">
-      <form class="card" name="validation-pretest" method="POST" data-netlify="true">
-        <input type="hidden" name="form-name" value="validation-pretest" />
+      <form class="card" name="validation-pretest">
         <h2>1 招募筛选 <span class="pill">测试前填写</span></h2>
         <div class="two">
           <div>
@@ -241,15 +240,14 @@
           <option>暂不参加</option>
         </select>
         <div class="actions">
-          <button class="btn" type="submit">提交招募筛选</button>
+          <button class="btn" type="button" onclick="saveLocal('招募筛选已暂存到本页')">暂存招募筛选</button>
           <button class="btn secondary" type="button" onclick="showPhase('problem')">继续填写原始问题</button>
         </div>
       </form>
     </section>
 
     <section class="phase" id="problem">
-      <form class="card" name="validation-problem" method="POST" data-netlify="true">
-        <input type="hidden" name="form-name" value="validation-problem" />
+      <form class="card" name="validation-problem">
         <h2>2 原始问题 <span class="pill">正式测试只读取这一题</span></h2>
         <label for="rawProblem">请用你平时会使用的语言描述当前科研卡点</label>
         <p class="hint">不要为了测试而包装成“标准科研问题”。如果涉及未发表内容，请模糊化。</p>
@@ -271,7 +269,7 @@
           <option>只允许内部分析，不写入报告</option><option>不希望写入</option>
         </select>
         <div class="actions">
-          <button class="btn" type="submit">提交原始问题</button>
+          <button class="btn" type="button" onclick="saveLocal('原始问题已暂存到本页')">暂存原始问题</button>
           <button class="btn secondary" type="button" onclick="showPhase('test')">进入正式测试记录</button>
         </div>
       </form>
@@ -283,22 +281,20 @@
         <p>正式测试不是问卷。它是用上一步的原始问题，进行 3–5 轮必要追问，最后输出一个下一步具体动作和可检查结果。</p>
         <p>当前页面先提供“人工主持版”的记录框。后续可以把这里接入 Netlify Function + OpenAI API，让 AI agent 自动追问和生成结果。</p>
       </div>
-      <form class="card" name="validation-session" method="POST" data-netlify="true">
-        <input type="hidden" name="form-name" value="validation-session" />
+      <form class="card" name="validation-session">
         <label for="sessionLog">正式测试记录</label>
         <textarea id="sessionLog" name="sessionLog" placeholder="主持人记录：原始问题 → 追问1 → 回答1 → 追问2 → 回答2 → 处理方向 → 下一步具体动作 → 可检查结果"></textarea>
         <label for="resultSummary">发给被访者的测试结果摘要</label>
         <textarea id="resultSummary" name="resultSummary" placeholder="请用普通话写清楚：刚才先从什么方向处理、为什么、下一步具体做什么、做完拿出什么结果。"></textarea>
         <div class="actions">
-          <button class="btn" type="submit">提交正式测试记录</button>
+          <button class="btn" type="button" onclick="saveLocal('正式测试记录已暂存到本页')">暂存正式测试记录</button>
           <button class="btn secondary" type="button" onclick="showPhase('feedback')">进入测后反馈</button>
         </div>
       </form>
     </section>
 
     <section class="phase" id="feedback">
-      <form class="card" name="validation-feedback" method="POST" data-netlify="true">
-        <input type="hidden" name="form-name" value="validation-feedback" />
+      <form class="card" name="validation-feedback">
         <h2>4 测后反馈 <span class="pill">测试后填写</span></h2>
         <p class="hint">请在看完“测试结果摘要”后填写。这里的“处理方向”指刚才先从哪里处理你的问题；“下一步具体动作”指 1–2 天内能做的一件事；“可检查结果”指做完后能拿出来看的东西。</p>
         <label for="understand">我能理解刚才为什么先从这个方向处理我的问题</label>
@@ -326,15 +322,14 @@
         <label for="confusing">哪一步最卡、最难懂或最像废话？</label>
         <textarea id="confusing" name="confusing"></textarea>
         <div class="actions">
-          <button class="btn" type="submit">提交测后反馈</button>
+          <button class="btn" type="button" onclick="saveLocal('测后反馈已暂存到本页')">暂存测后反馈</button>
           <button class="btn secondary" type="button" onclick="showPhase('followup')">进入执行回访</button>
         </div>
       </form>
     </section>
 
     <section class="phase" id="followup">
-      <form class="card" name="validation-followup" method="POST" data-netlify="true">
-        <input type="hidden" name="form-name" value="validation-followup" />
+      <form class="card" name="validation-followup">
         <h2>5 1–7 天执行回访</h2>
         <label for="executed">测试后，你是否执行了刚才建议的下一步具体动作？</label>
         <select id="executed" name="executed">
@@ -347,7 +342,7 @@
         <label for="followupNote">补充说明</label>
         <textarea id="followupNote" name="followupNote" placeholder="如果没有执行，主要原因是什么？执行后是否更清楚下一步？"></textarea>
         <div class="actions">
-          <button class="btn" type="submit">提交执行回访</button>
+          <button class="btn" type="button" onclick="saveLocal('执行回访已暂存到本页')">暂存执行回访</button>
           <button class="btn secondary" type="button" onclick="showPhase('export')">导出数据</button>
         </div>
       </form>
@@ -356,8 +351,9 @@
     <section class="phase" id="export">
       <div class="card">
         <h2>导出本页填写数据</h2>
-        <p>如果暂时没有接后端，可以让测试者或主持人点击下面按钮，把本页数据导出为 JSON，手动发回。</p>
+        <p>如果已配置 Google Apps Script，本页可以直接提交到 Google Sheet；否则请导出 JSON，手动发回给主持人。</p>
         <div class="actions">
+          <button class="btn" type="button" onclick="submitAllRemote()">提交到 Google Sheet</button>
           <button class="btn success" type="button" onclick="downloadJson()">导出 JSON</button>
           <button class="btn secondary" type="button" onclick="copySummary()">复制摘要</button>
         </div>
@@ -370,6 +366,10 @@
   <footer>Hidden validation page · noindex · do not share publicly</footer>
 
   <script>
+    // 部署 Apps Script Web App 后，把 URL 粘贴到这里。
+    // 形如：https://script.google.com/macros/s/AKfycbxxxxxxxxxxxxxxxx/exec
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwziMOwds87TpR0i520QBdgPajdrT4K51XNiHJmiqFSBLM4rCN29wg8PbJ-oWPY0ReH/exec";
+
     const phases = [...document.querySelectorAll(".phase")].map(x => x.id);
     document.querySelectorAll("nav button").forEach(btn => {
       btn.addEventListener("click", () => showPhase(btn.dataset.phase));
@@ -394,6 +394,32 @@
         data[key] = el.value;
       });
       return data;
+    }
+    function storageKey() {
+      const id = document.getElementById("testerId")?.value || "anonymous";
+      return `research-validation-jt-2026:${id}`;
+    }
+    function saveLocal(message = "已暂存到本页") {
+      localStorage.setItem(storageKey(), JSON.stringify(collectData()));
+      alert(`${message}。如果已配置 Google Apps Script，可在“导出”页提交到 Google Sheet；否则请下载 JSON 发回。`);
+    }
+    function restoreLocal() {
+      const keys = Object.keys(localStorage).filter(k => k.startsWith("research-validation-jt-2026:"));
+      const raw = keys.length ? localStorage.getItem(keys[keys.length - 1]) : null;
+      if (!raw) return;
+      try {
+        const data = JSON.parse(raw);
+        document.querySelectorAll("input, textarea, select").forEach(el => {
+          if (!el.name && !el.id) return;
+          const key = el.name || el.id;
+          if (data[key] == null) return;
+          if (el.type === "radio" || el.type === "checkbox") {
+            el.checked = Array.isArray(data[key]) && data[key].includes(el.value);
+          } else {
+            el.value = data[key];
+          }
+        });
+      } catch {}
     }
     function makeSummary(data = collectData()) {
       return [
@@ -424,6 +450,31 @@
       a.click();
       URL.revokeObjectURL(a.href);
     }
+    async function submitRemote(submissionType = "all") {
+      const data = { ...collectData(), submissionType };
+      saveLocal("提交前已自动暂存");
+      if (!GAS_WEB_APP_URL) {
+        alert("还没有配置 Google Apps Script Web App URL。请先导出 JSON，或让主持人把 Apps Script URL 填进页面。");
+        return false;
+      }
+      try {
+        // 使用 text/plain 避免浏览器发起 CORS preflight；Apps Script 端按 JSON 解析 body。
+        await fetch(GAS_WEB_APP_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(data),
+        });
+        alert("已发送到 Google Sheet。由于浏览器跨域限制，页面无法读取服务器回执；如需确认，请主持人查看表格。");
+        return true;
+      } catch (err) {
+        alert(`提交失败：${err.message || err}。请改用“导出 JSON”发回。`);
+        return false;
+      }
+    }
+    function submitAllRemote() {
+      submitRemote("all");
+    }
     async function copySummary() {
       const text = makeSummary();
       document.getElementById("preview").textContent = text;
@@ -434,6 +485,7 @@
         alert("复制失败，请手动复制摘要预览。");
       }
     }
+    restoreLocal();
   </script>
 </body>
 </html>
