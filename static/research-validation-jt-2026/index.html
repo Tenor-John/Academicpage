@@ -138,6 +138,19 @@
       white-space: pre-wrap;
       color: #334155;
     }
+    .chat-box {
+      display: grid;
+      gap: 10px;
+      margin: 12px 0;
+    }
+    .msg {
+      border-radius: 12px;
+      padding: 11px 13px;
+      white-space: pre-wrap;
+    }
+    .msg.user { background: #f1f5f9; border: 1px solid #e2e8f0; }
+    .msg.ai { background: #eef2ff; border: 1px solid #c7d2fe; }
+    .msg.meta { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 13px; }
     footer {
       text-align: center;
       color: var(--muted);
@@ -279,7 +292,22 @@
       <div class="card notice">
         <h2>3 正式测试 <span class="pill">主持人/AI 使用</span></h2>
         <p>正式测试不是问卷。它是用上一步的原始问题，进行 3–5 轮必要追问，最后输出一个下一步具体动作和可检查结果。</p>
-        <p>当前页面先提供“人工主持版”的记录框。后续可以把这里接入 Netlify Function + OpenAI API，让 AI agent 自动追问和生成结果。</p>
+        <p>你可以使用下面的 AI 主持区自动追问。AI 不会看到测后分类和期望输出，只根据原始问题和你的回答进行判断。</p>
+      </div>
+      <div class="card">
+        <h2>AI 主持正式测试</h2>
+        <p class="hint">使用前请先填写“原始问题”。AI 最多追问 3–5 轮；如果信息足够，会直接给出处理方向、下一步具体动作和可检查结果。</p>
+        <div class="actions">
+          <button class="btn" type="button" onclick="startAiTest()">开始 AI 正式测试</button>
+          <button class="btn secondary" type="button" onclick="forceAiFinal()">停止追问，生成结果</button>
+          <button class="btn secondary" type="button" onclick="resetAiChat()">清空 AI 对话</button>
+        </div>
+        <div class="chat-box" id="aiChat"></div>
+        <label for="aiUserReply">你的回答</label>
+        <textarea id="aiUserReply" placeholder="看到 AI 的追问后，在这里回答。"></textarea>
+        <div class="actions">
+          <button class="btn" type="button" onclick="sendAiReply()">发送回答给 AI</button>
+        </div>
       </div>
       <form class="card" name="validation-session">
         <label for="sessionLog">正式测试记录</label>
@@ -369,6 +397,8 @@
     // 部署 Apps Script Web App 后，把 URL 粘贴到这里。
     // 形如：https://script.google.com/macros/s/AKfycbxxxxxxxxxxxxxxxx/exec
     const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwziMOwds87TpR0i520QBdgPajdrT4K51XNiHJmiqFSBLM4rCN29wg8PbJ-oWPY0ReH/exec";
+    let aiHistory = [];
+    let aiTurnCount = 0;
 
     const phases = [...document.querySelectorAll(".phase")].map(x => x.id);
     document.querySelectorAll("nav button").forEach(btn => {
@@ -394,6 +424,113 @@
         data[key] = el.value;
       });
       return data;
+    }
+    function appendAiMessage(role, content, meta = "") {
+      const box = document.getElementById("aiChat");
+      const div = document.createElement("div");
+      div.className = `msg ${role === "user" ? "user" : role === "meta" ? "meta" : "ai"}`;
+      div.textContent = meta ? `${meta}\n${content}` : content;
+      box.appendChild(div);
+      box.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+    function resetAiChat() {
+      aiHistory = [];
+      aiTurnCount = 0;
+      document.getElementById("aiChat").innerHTML = "";
+      document.getElementById("aiUserReply").value = "";
+      document.getElementById("sessionLog").value = "";
+      document.getElementById("resultSummary").value = "";
+      saveLocal("AI 对话已清空并暂存");
+    }
+    async function startAiTest() {
+      const rawProblem = document.getElementById("rawProblem").value.trim();
+      if (!rawProblem) {
+        alert("请先在“原始问题”里填写科研卡点。");
+        showPhase("problem");
+        return;
+      }
+      if (!GAS_WEB_APP_URL) {
+        alert("尚未配置 Apps Script URL，无法使用 AI 主持。");
+        return;
+      }
+      aiHistory = [];
+      aiTurnCount = 0;
+      document.getElementById("aiChat").innerHTML = "";
+      appendAiMessage("user", rawProblem, "原始问题");
+      await requestAiStep(false);
+    }
+    async function sendAiReply() {
+      const reply = document.getElementById("aiUserReply").value.trim();
+      if (!reply) {
+        alert("请先填写你的回答。");
+        return;
+      }
+      aiHistory.push({ role: "user", content: reply });
+      appendAiMessage("user", reply, "你的回答");
+      document.getElementById("aiUserReply").value = "";
+      await requestAiStep(false);
+    }
+    async function forceAiFinal() {
+      await requestAiStep(true);
+    }
+    async function requestAiStep(forceFinal) {
+      const rawProblem = document.getElementById("rawProblem").value.trim();
+      appendAiMessage("meta", "AI 正在处理，请稍等……");
+      try {
+        const res = await fetch(GAS_WEB_APP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "ai_step",
+            submissionType: "ai",
+            testerId: document.getElementById("testerId").value || "",
+            page: "research-validation-jt-2026",
+            collectedAt: new Date().toISOString(),
+            rawProblem,
+            history: aiHistory,
+            turnCount: aiTurnCount,
+            forceFinal: Boolean(forceFinal),
+          }),
+        });
+        const json = await res.json();
+        if (!json.ok) throw new Error(json.error || "AI 返回失败");
+        handleAiResult(json.result);
+      } catch (err) {
+        appendAiMessage("meta", `AI 调用失败：${err.message || err}\n如果这是跨域问题，请改用人工主持记录或导出 JSON。`);
+      } finally {
+        syncAiLogToFields();
+        saveLocal("AI 正式测试已暂存");
+      }
+    }
+    function handleAiResult(result) {
+      if (!result || !result.type) {
+        appendAiMessage("meta", "AI 返回为空，需要人工复核。");
+        return;
+      }
+      if (result.type === "question") {
+        const q = result.question || "请补充一个关键背景。";
+        aiTurnCount += 1;
+        aiHistory.push({ role: "assistant", content: q });
+        appendAiMessage("ai", q, `AI 追问 ${aiTurnCount}｜${result.question_type || "追问"}`);
+        return;
+      }
+      const summary = [
+        `处理方向：${result.processing_direction || ""}`,
+        `关键判断：${result.key_judgment || ""}`,
+        `下一步具体动作：${result.next_action || ""}`,
+        `可检查结果：${result.deliverable || ""}`,
+        `边界/风险：${result.risk_or_boundary || ""}`,
+      ].filter(Boolean).join("\n");
+      aiHistory.push({ role: "assistant", content: result.summary || summary });
+      appendAiMessage("ai", summary, "AI 正式测试结果");
+      document.getElementById("resultSummary").value = result.summary || summary;
+    }
+    function syncAiLogToFields() {
+      const lines = [`原始问题：${document.getElementById("rawProblem").value.trim()}`];
+      aiHistory.forEach((m, i) => {
+        lines.push(`${i + 1}. ${m.role === "assistant" ? "AI" : "用户"}：${m.content}`);
+      });
+      document.getElementById("sessionLog").value = lines.join("\n\n");
     }
     function storageKey() {
       const id = document.getElementById("testerId")?.value || "anonymous";
