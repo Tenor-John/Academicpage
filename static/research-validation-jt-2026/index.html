@@ -504,7 +504,8 @@
     }
     function handleAiResult(result) {
       if (!result || !result.type) {
-        appendAiMessage("meta", "AI 返回为空，需要人工复核。");
+        appendAiMessage("meta", `AI 返回格式不完整，需要人工复核。\n原始返回：${JSON.stringify(result || {}, null, 2)}`);
+        document.getElementById("resultSummary").value = JSON.stringify(result || {}, null, 2);
         return;
       }
       if (result.type === "question") {

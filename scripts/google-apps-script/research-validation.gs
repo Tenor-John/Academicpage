@@ -342,20 +342,101 @@ function parseAiJson_(text) {
     .replace(/^```json\s*/i, '')
     .replace(/^```\s*/i, '')
     .replace(/\s*```$/i, '');
-  try {
-    return JSON.parse(cleaned);
-  } catch (err) {
+  if (!cleaned) {
     return {
       type: 'final',
-      processing_direction: 'AI 输出格式异常，需要人工复核',
-      key_judgment: '模型未返回严格 JSON。',
-      next_action: '请主持人查看 raw_text，并决定是否重新生成。',
-      deliverable: '一次人工复核记录。',
+      processing_direction: 'AI 未返回有效内容',
+      key_judgment: '后端成功调用，但模型返回为空。',
+      next_action: '请检查模型名、接口权限、USTC agent 是否允许 Apps Script 服务器访问，并在 Apps Script 执行日志中查看原始响应。',
+      deliverable: '一次接口连通性复核记录。',
+      risk_or_boundary: '该条不应计入独立 AI 成功案例。',
+      summary: 'AI 未返回有效内容，需要人工复核接口配置。',
+      raw_text: '',
+    };
+  }
+  try {
+    const obj = JSON.parse(cleaned);
+    return normalizeAiObject_(obj, cleaned);
+  } catch (err) {
+    // Some gateways/models ignore JSON-only instruction and return plain text.
+    // Make the result visible instead of letting the frontend show an empty response.
+    const looksLikeQuestion = /[？?]\s*$/.test(cleaned) || /请|能否|是否|哪个|什么|多少|多久|有没有/.test(cleaned.slice(0, 120));
+    if (looksLikeQuestion && cleaned.length < 500) {
+      return {
+        type: 'question',
+        question: cleaned,
+        question_type: '分流追问',
+        reason: '模型返回了非 JSON 文本，已按追问处理。',
+        raw_text: cleaned,
+      };
+    }
+    return {
+      type: 'final',
+      processing_direction: 'AI 输出格式异常，但已有文本结果',
+      key_judgment: '模型未返回严格 JSON，前端已保留原始文本。',
+      next_action: '请主持人根据 raw_text 判断是否可作为本轮测试结果；若不可用，检查模型是否支持按 JSON 输出。',
+      deliverable: '一次带 raw_text 的人工复核记录。',
       risk_or_boundary: '该条不应计入独立 AI 成功案例。',
       summary: cleaned,
       raw_text: cleaned,
     };
   }
+}
+
+function normalizeAiObject_(obj, rawText) {
+  if (!obj || typeof obj !== 'object') {
+    return {
+      type: 'final',
+      processing_direction: 'AI 返回了非对象 JSON',
+      key_judgment: '无法按正式测试结构解析。',
+      next_action: '请人工复核 raw_text。',
+      deliverable: '一次解析失败记录。',
+      risk_or_boundary: '不计入独立 AI 成功案例。',
+      summary: String(rawText || ''),
+      raw_text: String(rawText || ''),
+    };
+  }
+
+  if (obj.type === 'question' || obj.type === 'final') return obj;
+
+  // Accept common variants from non-strict models.
+  if (obj.question || obj.followup_question || obj.next_question || obj['问题'] || obj['追问']) {
+    return {
+      type: 'question',
+      question: obj.question || obj.followup_question || obj.next_question || obj['问题'] || obj['追问'],
+      question_type: obj.question_type || obj['追问类型'] || '分流追问',
+      reason: obj.reason || obj['原因'] || '模型未提供标准 type 字段，已按追问结构兼容。',
+      raw_text: rawText,
+    };
+  }
+
+  if (
+    obj.processing_direction || obj.next_action || obj.deliverable ||
+    obj.summary || obj['处理方向'] || obj['下一步具体动作'] || obj['可检查结果']
+  ) {
+    return {
+      type: 'final',
+      processing_direction: obj.processing_direction || obj['处理方向'] || '',
+      key_judgment: obj.key_judgment || obj['关键判断'] || '',
+      next_action: obj.next_action || obj['下一步具体动作'] || '',
+      deliverable: obj.deliverable || obj['可检查结果'] || '',
+      followup_questions_count: obj.followup_questions_count || obj['追问数'] || '',
+      risk_or_boundary: obj.risk_or_boundary || obj['边界/风险'] || '',
+      summary: obj.summary || obj['摘要'] || rawText,
+      raw_text: rawText,
+    };
+  }
+
+  return {
+    type: 'final',
+    processing_direction: 'AI 返回字段不完整',
+    key_judgment: '返回了 JSON，但没有 question/final 所需字段。',
+    next_action: '请查看 raw_text，并检查提示词或模型兼容性。',
+    deliverable: '一次字段兼容性复核记录。',
+    risk_or_boundary: '不计入独立 AI 成功案例。',
+    summary: rawText,
+    raw_text: rawText,
+  };
 }
 
 function parsePayload_(e) {
