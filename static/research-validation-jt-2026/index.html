@@ -503,6 +503,7 @@
       }
     }
     function handleAiResult(result) {
+      result = normalizeClientAiResult(result);
       if (!result || !result.type) {
         const raw = JSON.stringify(result || {}, null, 2);
         const msg = [
@@ -538,6 +539,29 @@
       aiHistory.push({ role: "assistant", content: result.summary || summary });
       appendAiMessage("ai", summary, "AI 正式测试结果");
       document.getElementById("resultSummary").value = result.summary || summary;
+    }
+    function normalizeClientAiResult(result) {
+      if (!result || result.type !== "final" || !result.raw_text) return result;
+      const raw = String(result.raw_text || "");
+      const match = raw.match(/```json\s*([\s\S]*?)```/i) || raw.match(/```\s*([\s\S]*?)```/i);
+      const candidate = match ? match[1] : raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1);
+      if (!candidate || candidate[0] !== "{") return result;
+      try {
+        const obj = JSON.parse(candidate);
+        if (obj && (obj.type === "final" || obj.processing_direction || obj.next_action || obj.summary)) {
+          return {
+            type: "final",
+            processing_direction: obj.processing_direction || obj["处理方向"] || "",
+            key_judgment: obj.key_judgment || obj["关键判断"] || "",
+            next_action: obj.next_action || obj["下一步具体动作"] || "",
+            deliverable: obj.deliverable || obj["可检查结果"] || "",
+            risk_or_boundary: obj.risk_or_boundary || obj["边界/风险"] || "",
+            summary: obj.summary || "",
+            raw_text: raw
+          };
+        }
+      } catch {}
+      return result;
     }
     function syncAiLogToFields() {
       const lines = [`原始问题：${document.getElementById("rawProblem").value.trim()}`];

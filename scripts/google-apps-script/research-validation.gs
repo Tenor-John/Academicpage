@@ -167,7 +167,8 @@ function runResearchValidationAgent_(payload) {
     '每个追问必须属于以下之一：分流追问、执行细化追问、有效但不改变路径。',
     '如果已经足够判断，或追问达到 5 轮，必须输出 final。',
     '如果出现明显身心健康、安全风险或严重现实危机，不做科研效率建议，建议寻求现实支持。',
-    '输出必须是严格 JSON，不要 Markdown，不要代码块。',
+    '输出必须是严格 JSON，不要 Markdown，不要代码块，不要解释性前缀。',
+    '你的回复第一个字符必须是 {，最后一个字符必须是 }。',
     '',
     'JSON 格式二选一：',
     '{"type":"question","question":"下一问","question_type":"分流追问/执行细化追问/有效但不改变路径","reason":"为什么问这个"}',
@@ -390,7 +391,8 @@ function parseAiJson_(text) {
     };
   }
   try {
-    const obj = JSON.parse(cleaned);
+    const jsonText = extractJsonObjectText_(cleaned);
+    const obj = JSON.parse(jsonText);
     return normalizeAiObject_(obj, cleaned);
   } catch (err) {
     // Some gateways/models ignore JSON-only instruction and return plain text.
@@ -416,6 +418,19 @@ function parseAiJson_(text) {
       raw_text: cleaned,
     };
   }
+}
+
+function extractJsonObjectText_(text) {
+  const s = String(text || '').trim();
+  const fenced = s.match(/```json\s*([\s\S]*?)```/i) || s.match(/```\s*([\s\S]*?)```/i);
+  if (fenced && fenced[1]) return fenced[1].trim();
+
+  const first = s.indexOf('{');
+  const last = s.lastIndexOf('}');
+  if (first >= 0 && last > first) {
+    return s.slice(first, last + 1).trim();
+  }
+  return s;
 }
 
 function normalizeAiObject_(obj, rawText) {
