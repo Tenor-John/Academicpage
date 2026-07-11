@@ -177,10 +177,14 @@ function runResearchValidationAgent_(payload) {
     '4. 如果问题涉及导师/合作者分歧，必须给出 advisor_conversation_script，包含可直接说出口的沟通句式。',
     '5. 必须给出 success_criteria：完成到什么程度算这一步有效。',
     '6. 不要停在“建议换框架/明确标准/准备备选方案”，必须写清楚怎么换、问谁、拿什么材料去问。',
+    '7. 如果问题涉及“导师认为方向没价值/研究空白是否值得做/应用价值或论文价值不清”，必须输出 value_chain、minimum_validation_card、go_modify_stop 和 decision_question。',
+    '8. value_chain 必须按“研究空白 → 具体问题/场景 → 现有限制 → 可测量改善 → 最小验证”组织，不能只说“没人做过”。',
+    '9. minimum_validation_card 必须包含：一句话假设、具体反应/场景、5-10篇关键文献定位、差异化、最小实验/计算、成功标准、停止标准、失败后收缩方案。',
+    '10. go_modify_stop 必须列出 Go / Modify / Stop 三类判断标准。',
     '',
     'JSON 格式二选一：',
     '{"type":"question","question":"下一问","question_type":"分流追问/执行细化追问/有效但不改变路径","reason":"为什么问这个"}',
-    '{"type":"final","processing_direction":"先从什么方向处理","key_judgment":"关键判断","next_action":"编号列出1-2天内可执行步骤","action_plan_72h":"24小时/48小时/72小时行动表","advisor_conversation_script":"如果涉及导师分歧，给出可直接说出口的沟通句式；不涉及则写空字符串","deliverable":"做完后能拿出来看的可检查结果","success_criteria":"这一步做到什么程度算有效","followup_questions_count":数字,"risk_or_boundary":"边界/风险","summary":"发给被访者的简短结果摘要"}',
+    '{"type":"final","processing_direction":"先从什么方向处理","key_judgment":"关键判断","value_chain":"如涉及方向价值争议，写研究空白→具体问题/场景→现有限制→可测量改善→最小验证；否则可为空","minimum_validation_card":"如涉及方向价值争议，写一页最小价值验证卡的内容；否则可为空","go_modify_stop":"如涉及方向价值争议，列出Go/Modify/Stop标准；否则可为空","decision_question":"如涉及导师/合作者决策，写一个需要对方回答的关键决策问题；否则可为空","next_action":"编号列出1-2天内可执行步骤","action_plan_72h":"24小时/48小时/72小时行动表","advisor_conversation_script":"如果涉及导师分歧，给出可直接说出口的沟通句式；不涉及则写空字符串","deliverable":"做完后能拿出来看的可检查结果","success_criteria":"这一步做到什么程度算有效","followup_questions_count":数字,"risk_or_boundary":"边界/风险","summary":"发给被访者的简短结果摘要"}',
   ].join('\n');
 
   const conversation = [
@@ -476,6 +480,10 @@ function normalizeAiObject_(obj, rawText) {
         type: 'final',
         processing_direction: obj.processing_direction || obj['处理方向'] || '',
         key_judgment: obj.key_judgment || obj['关键判断'] || '',
+        value_chain: obj.value_chain || obj['价值链'] || '',
+        minimum_validation_card: obj.minimum_validation_card || obj['最小价值验证卡'] || obj['验证卡'] || '',
+        go_modify_stop: obj.go_modify_stop || obj['Go/Modify/Stop'] || obj['继续调整停止标准'] || '',
+        decision_question: obj.decision_question || obj['关键决策问题'] || '',
         next_action: obj.next_action || obj['下一步具体动作'] || '',
         action_plan_72h: obj.action_plan_72h || obj['72小时行动计划'] || obj['行动计划'] || '',
         advisor_conversation_script: obj.advisor_conversation_script || obj['导师沟通句式'] || obj['沟通句式'] || '',
