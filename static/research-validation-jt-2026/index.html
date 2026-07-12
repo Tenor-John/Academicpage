@@ -543,6 +543,17 @@
         result.success_criteria ? `完成标准：${result.success_criteria}` : "",
         `边界/风险：${result.risk_or_boundary || ""}`,
       ].filter(Boolean).join("\n");
+      const isFormatFallback = /格式异常|字段不完整|非对象 JSON|未返回严格 JSON/.test(result.processing_direction || result.key_judgment || "");
+      if (isFormatFallback && result.raw_text) {
+        const rawDisplay = String(result.raw_text)
+          .replace(/^```json\s*/i, "")
+          .replace(/^```\s*/i, "")
+          .replace(/\s*```$/i, "")
+          .trim();
+        appendAiMessage("ai", rawDisplay, "AI 原始回答（未结构化）");
+        document.getElementById("resultSummary").value = rawDisplay;
+        return;
+      }
       aiHistory.push({ role: "assistant", content: result.summary || summary });
       appendAiMessage("ai", summary, "AI 正式测试结果");
       document.getElementById("resultSummary").value = result.summary || summary;
