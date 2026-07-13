@@ -595,8 +595,18 @@
       });
       document.getElementById("sessionLog").value = lines.join("\n\n");
     }
+    function currentSessionId() {
+      const key = "research-validation-jt-2026:current-session-id";
+      let id = sessionStorage.getItem(key);
+      if (!id) {
+        id = `session-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+        sessionStorage.setItem(key, id);
+      }
+      return id;
+    }
     function storageKey() {
-      const id = document.getElementById("testerId")?.value || "anonymous";
+      const testerId = (document.getElementById("testerId")?.value || "").trim();
+      const id = testerId || currentSessionId();
       return `research-validation-jt-2026:${id}`;
     }
     function saveLocal(message = "已暂存到本页") {
@@ -607,8 +617,7 @@
       localStorage.setItem(storageKey(), JSON.stringify(collectData()));
     }
     function restoreLocal() {
-      const keys = Object.keys(localStorage).filter(k => k.startsWith("research-validation-jt-2026:"));
-      const raw = keys.length ? localStorage.getItem(keys[keys.length - 1]) : null;
+      const raw = localStorage.getItem(storageKey());
       if (!raw) return;
       try {
         const data = JSON.parse(raw);
