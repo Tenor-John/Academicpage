@@ -708,10 +708,11 @@
         return;
       }
       if (result.type === "question") {
-        const q = result.question || "请补充一个关键背景。";
+        const normalizedQuestion = normalizeQuestionResult(result);
+        const q = normalizedQuestion.question || "请补充一个关键背景。";
         aiTurnCount += 1;
         aiHistory.push({ role: "assistant", content: q });
-        appendAiMessage("ai", q, `AI 追问 ${aiTurnCount}｜${result.question_type || "追问"}`);
+        appendAiMessage("ai", q, `AI 追问 ${aiTurnCount}｜${normalizedQuestion.question_type || "追问"}`);
         return;
       }
       const summary = [
@@ -752,6 +753,45 @@
       setAiFinalized(true);
       appendAiMessage("meta", "本轮已经生成正式测试结果，系统已停止继续追问。若需要重新测试，请点击“清空 AI 对话”后重新开始。");
       updateAutoDiagnosis();
+    }
+    function normalizeQuestionResult(result) {
+      const text = String(result?.question || "").trim();
+      if (!text.includes("{") || !text.includes("}")) return result;
+      const jsonText = extractFirstJsonObjectFromText(text);
+      if (!jsonText) return result;
+      try {
+        const obj = JSON.parse(jsonText);
+        if (obj && obj.type === "question" && obj.question) {
+          return {
+            ...result,
+            question: obj.question,
+            question_type: obj.question_type || result.question_type || "追问",
+            reason: obj.reason || result.reason || "",
+          };
+        }
+      } catch {}
+      return result;
+    }
+    function extractFirstJsonObjectFromText(text) {
+      const s = String(text || "");
+      let start = -1, depth = 0, inString = false, escape = false;
+      for (let i = 0; i < s.length; i++) {
+        const ch = s[i];
+        if (start < 0) {
+          if (ch === "{") { start = i; depth = 1; }
+          continue;
+        }
+        if (escape) { escape = false; continue; }
+        if (ch === "\\") { escape = true; continue; }
+        if (ch === '"') { inString = !inString; continue; }
+        if (inString) continue;
+        if (ch === "{") depth += 1;
+        if (ch === "}") {
+          depth -= 1;
+          if (depth === 0) return s.slice(start, i + 1);
+        }
+      }
+      return "";
     }
     function normalizeClientAiResult(result) {
       if (!result || result.type !== "final" || !result.raw_text) return result;

@@ -438,14 +438,41 @@ function parseAiJson_(text) {
 function extractJsonObjectText_(text) {
   const s = String(text || '').trim();
   const fenced = s.match(/```json\s*([\s\S]*?)```/i) || s.match(/```\s*([\s\S]*?)```/i);
-  if (fenced && fenced[1]) return fenced[1].trim();
+  const target = fenced && fenced[1] ? fenced[1].trim() : s;
 
-  const first = s.indexOf('{');
-  const last = s.lastIndexOf('}');
-  if (first >= 0 && last > first) {
-    return s.slice(first, last + 1).trim();
+  let start = -1;
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+  for (let i = 0; i < target.length; i++) {
+    const ch = target[i];
+    if (start < 0) {
+      if (ch === '{') {
+        start = i;
+        depth = 1;
+      }
+      continue;
+    }
+    if (escape) {
+      escape = false;
+      continue;
+    }
+    if (ch === '\\') {
+      escape = true;
+      continue;
+    }
+    if (ch === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+    if (ch === '{') depth += 1;
+    if (ch === '}') {
+      depth -= 1;
+      if (depth === 0) return target.slice(start, i + 1).trim();
+    }
   }
-  return s;
+  return target;
 }
 
 function normalizeAiObject_(obj, rawText) {
