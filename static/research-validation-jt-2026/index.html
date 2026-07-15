@@ -77,6 +77,21 @@
       background: #fffbeb;
       border-color: #fde68a;
     }
+    .diagnosis-box {
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+      border-radius: 12px;
+      padding: 12px;
+      margin: 12px 0;
+      white-space: pre-wrap;
+      color: #1e3a8a;
+      font-size: 14px;
+    }
+    .researcher-only {
+      border: 1px dashed #f59e0b;
+      background: #fffbeb;
+      color: #92400e;
+    }
     h2 { margin: 0 0 14px; font-size: 20px; }
     h3 { margin: 18px 0 10px; font-size: 16px; }
     label { display: block; font-weight: 650; margin: 14px 0 6px; }
@@ -324,7 +339,14 @@
     <section class="phase" id="feedback">
       <form class="card" name="validation-feedback">
         <h2>4 测后反馈 <span class="pill">测试后填写</span></h2>
-        <p class="hint">请在看完“测试结果摘要”后填写。这里的“处理方向”指刚才先从哪里处理你的问题；“下一步具体动作”指 1–2 天内能做的一件事；“可检查结果”指做完后能拿出来看的东西。</p>
+        <p class="hint">系统会先根据刚才的正式测试对话自动生成一份诊断。你只需要确认它是否符合你的感受，并补充哪里没讲清楚。</p>
+        <label for="autoDiagnosis">系统根据对话自动提取的测试诊断</label>
+        <textarea id="autoDiagnosis" name="autoDiagnosis" readonly placeholder="进入本页后自动生成：是否有术语解释不足、是否有反复追问、是否缺少下一步动作、是否输出不完整等。"></textarea>
+        <label for="diagnosisConfirm">这份自动诊断是否符合你的真实感受？</label>
+        <select id="diagnosisConfirm" name="diagnosisConfirm">
+          <option value="">请选择</option><option>符合</option><option>部分符合</option><option>不符合</option><option>我想补充</option>
+        </select>
+        <p class="hint">下面几个问题用于确认最终建议是否真的能帮你行动。这里的“处理方向”指 AI 先从哪里处理你的问题；“下一步具体动作”指 1–2 天内能做的一件事；“可检查结果”指做完后能拿出来看的东西。</p>
         <label for="understand">我能理解刚才为什么先从这个方向处理我的问题</label>
         <select id="understand" name="understand">
           <option value="">请选择</option><option>完全同意</option><option>基本同意</option><option>不太同意</option><option>完全不同意</option>
@@ -407,6 +429,7 @@
     function showPhase(id) {
       document.querySelectorAll(".phase").forEach(x => x.classList.toggle("active", x.id === id));
       document.querySelectorAll("nav button").forEach(x => x.classList.toggle("active", x.dataset.phase === id));
+      if (id === "feedback") updateAutoDiagnosis();
       if (id === "export") renderPreview();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -440,6 +463,8 @@
       document.getElementById("aiUserReply").value = "";
       document.getElementById("sessionLog").value = "";
       document.getElementById("resultSummary").value = "";
+      const autoDiagnosis = document.getElementById("autoDiagnosis");
+      if (autoDiagnosis) autoDiagnosis.value = "";
       saveLocalSilent();
     }
     async function startAiTest() {
@@ -543,20 +568,26 @@
         result.success_criteria ? `完成标准：${result.success_criteria}` : "",
         `边界/风险：${result.risk_or_boundary || ""}`,
       ].filter(Boolean).join("\n");
-      const isFormatFallback = /格式异常|字段不完整|非对象 JSON|未返回严格 JSON/.test(result.processing_direction || result.key_judgment || "");
+      const isFormatFallback = result.unstructured_output || /格式异常|字段不完整|非对象 JSON|未返回严格 JSON/.test(result.processing_direction || result.key_judgment || "");
       if (isFormatFallback && result.raw_text) {
         const rawDisplay = String(result.raw_text)
           .replace(/^```json\s*/i, "")
           .replace(/^```\s*/i, "")
           .replace(/\s*```$/i, "")
           .trim();
-        appendAiMessage("ai", rawDisplay, "AI 原始回答（未结构化）");
+        appendAiMessage("ai", rawDisplay, "AI 回答（需主持人复核）");
         document.getElementById("resultSummary").value = rawDisplay;
+        updateAutoDiagnosis();
         return;
       }
       aiHistory.push({ role: "assistant", content: result.summary || summary });
       appendAiMessage("ai", summary, "AI 正式测试结果");
       document.getElementById("resultSummary").value = result.summary || summary;
+      const completenessWarning = buildCompletenessWarning(result, summary);
+      if (completenessWarning) {
+        appendAiMessage("meta", completenessWarning, "主持人复核提示");
+      }
+      updateAutoDiagnosis();
     }
     function normalizeClientAiResult(result) {
       if (!result || result.type !== "final" || !result.raw_text) return result;
@@ -588,12 +619,72 @@
       } catch {}
       return result;
     }
+    function buildCompletenessWarning(result, summaryText = "") {
+      const missing = [];
+      const summary = String(summaryText || result?.summary || "");
+      if (!String(result?.next_action || "").trim()) missing.push("下一步具体动作");
+      if (!String(result?.deliverable || "").trim()) missing.push("可检查结果");
+      if (!String(result?.success_criteria || "").trim()) missing.push("完成标准");
+      if (/```|raw_text|JSON|格式异常|未返回严格/.test(summary)) missing.push("用户界面残留内部格式/JSON 信息");
+      if (summary.length > 80 && !/[。！？.!?]$/.test(summary.trim())) missing.push("结尾疑似被截断");
+      if (!missing.length) return "";
+      return [
+        "本轮输出需要主持人复核，原因：",
+        ...missing.map(x => `- ${x}`),
+        "建议：不要直接把这条计入独立 AI 成功案例；可让 AI 重新补齐为普通中文结果，不要 JSON/Markdown 代码块。"
+      ].join("\n");
+    }
+    function updateAutoDiagnosis() {
+      const target = document.getElementById("autoDiagnosis");
+      if (!target) return;
+      const rawProblem = document.getElementById("rawProblem").value.trim();
+      const sessionLog = document.getElementById("sessionLog").value.trim();
+      const resultSummary = document.getElementById("resultSummary").value.trim();
+      const allText = [rawProblem, sessionLog, resultSummary].join("\n");
+      const userTexts = aiHistory.filter(m => m.role === "user").map(m => m.content).join("\n");
+      const aiTexts = aiHistory.filter(m => m.role === "assistant").map(m => m.content).join("\n");
+
+      const findings = [];
+      const termPattern = /什么是|解释|详细说|没懂|不清楚|吞鲸法|搜聚分验合|第一性原理|Figure Story|最小验证|证据链|科研流程/;
+      if (termPattern.test(userTexts)) {
+        findings.push("检测到用户追问术语或流程解释：说明系统需要先进入“术语解释模式”，用定义、步骤、例子和适用边界讲清楚，再继续规划。");
+      }
+      const repeatedQuestionCount = (userTexts.match(/什么|解释|详细|流程|怎么|为什么/g) || []).length;
+      if (repeatedQuestionCount >= 2) {
+        findings.push("检测到用户多次追问：可能表示 AI 第一次没有充分理解用户意图，或解释粒度不够。");
+      }
+      if (/格式异常|未返回严格 JSON|raw_text|```|AI 输出格式异常/.test(allText)) {
+        findings.push("检测到格式/结构化异常：这属于系统内部问题，不应直接暴露给被访者；本轮需要主持人复核。");
+      }
+      if (!/下一步|24小时|48小时|72小时|具体动作|先做|交付物|可检查/.test(resultSummary)) {
+        findings.push("最终摘要可能缺少明确下一步动作或可检查交付物：用户可能会觉得“说得对但不知道做什么”。");
+      }
+      if (/之前|长期|习惯|我的方向|导师|毕业|教职|论文|这个领域/.test(allText)) {
+        findings.push("检测到需要项目/个人记忆的线索：后续私有化 Agent 应记录用户研究方向、导师约束、毕业/论文目标和偏好的输出粒度。");
+      }
+      if (/上限|token|没回复完整|截断|不完整/.test(allText) || (resultSummary.length > 80 && !/[。！？.!?]$/.test(resultSummary.trim()))) {
+        findings.push("检测到输出完整性风险：建议提高 token 上限，并在展示前做“完整性检查 + 二次补全”。");
+      }
+      if (!findings.length && (sessionLog || resultSummary)) {
+        findings.push("暂未检测到明显理解偏差。请用户重点确认：处理方向是否相符、下一步动作是否现实、是否漏掉关键卡点。");
+      }
+      if (!sessionLog && !resultSummary) {
+        findings.push("还没有正式测试记录。请先完成 AI 正式测试，或由主持人粘贴对话记录后再生成诊断。");
+      }
+      target.value = [
+        "自动诊断结果：",
+        ...findings.map((x, i) => `${i + 1}. ${x}`),
+        "",
+        "请被访者确认：以上判断是否符合你的真实感受？如果不符合，请在“哪一步最卡、最难懂或最像废话？”里直接写出来。"
+      ].join("\n");
+    }
     function syncAiLogToFields() {
       const lines = [`原始问题：${document.getElementById("rawProblem").value.trim()}`];
       aiHistory.forEach((m, i) => {
         lines.push(`${i + 1}. ${m.role === "assistant" ? "AI" : "用户"}：${m.content}`);
       });
       document.getElementById("sessionLog").value = lines.join("\n\n");
+      updateAutoDiagnosis();
     }
     function currentSessionId() {
       const key = "research-validation-jt-2026:current-session-id";

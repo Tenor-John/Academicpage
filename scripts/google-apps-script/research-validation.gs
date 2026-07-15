@@ -167,6 +167,8 @@ function runResearchValidationAgent_(payload) {
     '每个追问必须属于以下之一：分流追问、执行细化追问、有效但不改变路径。',
     '如果已经足够判断，或追问达到 5 轮，必须输出 final。',
     '如果出现明显身心健康、安全风险或严重现实危机，不做科研效率建议，建议寻求现实支持。',
+    '如果用户询问“什么是/解释一下/没懂/科研流程/吞鲸法/搜聚分验合/第一性原理/Figure Story/最小验证/证据链”等术语或流程，优先进入术语解释模式：先用一句话定义，再给操作步骤、适用边界、一个例子，以及它和用户当前问题的关系；不要直接跳到泛泛科研规划。',
+    '如果用户连续追问同一概念，说明上一次解释不清楚；下一轮必须降低抽象度，用更具体的例子解释。',
     '输出必须是严格 JSON，不要 Markdown，不要代码块，不要解释性前缀。',
     '你的回复第一个字符必须是 {，最后一个字符必须是 }。',
     '',
@@ -264,7 +266,7 @@ function callAnthropicCompatibleMessages_(system, conversation, config) {
       model: config.model,
       system: system,
       messages: messages,
-      max_tokens: 900,
+      max_tokens: 1800,
       temperature: 0.2,
     }),
   });
@@ -314,7 +316,7 @@ function callOpenAiCompatibleChat_(system, conversation, config) {
       model: config.model,
       messages: messages,
       temperature: 0.2,
-      max_tokens: 900,
+      max_tokens: 1800,
       response_format: { type: 'json_object' },
     }),
   });
@@ -421,13 +423,14 @@ function parseAiJson_(text) {
     }
     return {
       type: 'final',
-      processing_direction: 'AI 输出格式异常，但已有文本结果',
-      key_judgment: '模型未返回严格 JSON，前端已保留原始文本。',
-      next_action: '请主持人根据 raw_text 判断是否可作为本轮测试结果；若不可用，检查模型是否支持按 JSON 输出。',
-      deliverable: '一次带 raw_text 的人工复核记录。',
-      risk_or_boundary: '该条不应计入独立 AI 成功案例。',
+      processing_direction: '已生成普通文本回答，需主持人复核后再发给被访者',
+      key_judgment: '本轮回答没有被拆成结构化字段，但原文可作为人工复核材料。',
+      next_action: '主持人先检查原文是否包含明确下一步动作、可检查交付物和边界风险；若缺失，请重新生成或手动补齐。',
+      deliverable: '一份经主持人确认后的测试结果摘要。',
+      risk_or_boundary: '该条可用于发现系统问题，但不应直接计入独立 AI 成功案例。',
       summary: cleaned,
       raw_text: cleaned,
+      unstructured_output: true,
     };
   }
 }
@@ -449,13 +452,14 @@ function normalizeAiObject_(obj, rawText) {
   if (!obj || typeof obj !== 'object') {
     return {
       type: 'final',
-      processing_direction: 'AI 返回了非对象 JSON',
-      key_judgment: '无法按正式测试结构解析。',
-      next_action: '请人工复核 raw_text。',
-      deliverable: '一次解析失败记录。',
-      risk_or_boundary: '不计入独立 AI 成功案例。',
+      processing_direction: '已收到 AI 回答，但需要主持人复核后再整理给被访者',
+      key_judgment: '返回内容无法自动拆成正式测试字段。',
+      next_action: '主持人检查原文是否有明确下一步动作和可检查结果；缺失时请补齐或重新生成。',
+      deliverable: '一份人工复核后的测试结果摘要。',
+      risk_or_boundary: '该条用于记录系统稳定性问题，不直接计入独立 AI 成功案例。',
       summary: String(rawText || ''),
       raw_text: String(rawText || ''),
+      unstructured_output: true,
     };
   }
 
@@ -498,13 +502,14 @@ function normalizeAiObject_(obj, rawText) {
 
   return {
     type: 'final',
-    processing_direction: 'AI 返回字段不完整',
-    key_judgment: '返回了 JSON，但没有 question/final 所需字段。',
-    next_action: '请查看 raw_text，并检查提示词或模型兼容性。',
-    deliverable: '一次字段兼容性复核记录。',
-    risk_or_boundary: '不计入独立 AI 成功案例。',
+    processing_direction: '已收到 AI 回答，但字段不完整，需要主持人复核',
+    key_judgment: '返回内容没有完整覆盖正式测试所需字段。',
+    next_action: '主持人检查是否缺少处理方向、下一步动作、可检查结果或边界风险；缺失时请补齐或重新生成。',
+    deliverable: '一份补齐字段后的测试结果摘要。',
+    risk_or_boundary: '该条用于发现系统问题，不直接计入独立 AI 成功案例。',
     summary: rawText,
     raw_text: rawText,
+    unstructured_output: true,
   };
 }
 
