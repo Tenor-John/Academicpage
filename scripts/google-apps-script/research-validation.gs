@@ -41,6 +41,9 @@ const SHEET_NAMES = {
   feedback: 'feedback',
   followup: 'followup',
   ai: 'ai_interactions',
+  aiClean: 'ai_turns_clean',
+  sessionClean: 'session_summary_clean',
+  feedbackClean: 'feedback_clean',
   error: 'errors',
 };
 
@@ -97,6 +100,74 @@ const HEADERS = [
   'payload_json',
 ];
 
+const AI_TURNS_CLEAN_HEADERS = [
+  'server_received_at',
+  'app_version',
+  'tester_id',
+  'client_session_id',
+  'raw_problem',
+  'turn_count',
+  'user_last_reply',
+  'ai_type',
+  'ai_question',
+  'ai_question_type',
+  'ai_reason',
+  'ai_final_summary',
+  'ai_next_action',
+  'ai_deliverable',
+  'ai_unstructured_output',
+  'quality_flag',
+  'ai_history_json',
+  'payload_json',
+];
+
+const SESSION_SUMMARY_CLEAN_HEADERS = [
+  'server_received_at',
+  'app_version',
+  'tester_id',
+  'client_session_id',
+  'stage',
+  'discipline',
+  'familiarity',
+  'raw_problem',
+  'duration',
+  'deadline',
+  'session_log',
+  'result_summary',
+  'auto_diagnosis',
+  'diagnosis_confirm',
+  'understand',
+  'match',
+  'acceptance',
+  'action_fit',
+  'missed',
+  'useful',
+  'confusing',
+  'key_issue_detected',
+  'needs_manual_review',
+  'success_or_not',
+  'payload_json',
+];
+
+const FEEDBACK_CLEAN_HEADERS = [
+  'server_received_at',
+  'app_version',
+  'tester_id',
+  'client_session_id',
+  'raw_problem',
+  'auto_diagnosis',
+  'diagnosis_confirm',
+  'understand',
+  'match',
+  'missed',
+  'action_fit',
+  'acceptance',
+  'useful',
+  'confusing',
+  'needs_manual_review',
+  'payload_json',
+];
+
 function doGet() {
   return jsonOutput({
     ok: true,
@@ -141,6 +212,7 @@ function doPost(e) {
     if (submissionType !== 'all') {
       appendSubmission_(SHEET_NAMES[submissionType] || SHEET_NAMES.all, submissionType, payload);
     }
+    appendCleanSubmissions_(submissionType, payload);
 
     return jsonOutput({
       ok: true,
@@ -166,6 +238,7 @@ function handleAiStep_(payload) {
   });
   appendSubmission_(SHEET_NAMES.all, 'ai', enriched);
   appendSubmission_(SHEET_NAMES.ai, 'ai', enriched);
+  appendAiTurnClean_(enriched);
   return jsonOutput({
     ok: true,
     action: 'ai_step',
@@ -656,6 +729,139 @@ function appendSubmission_(sheetName, submissionType, payload) {
   sheet.appendRow(row);
 }
 
+function appendCleanSubmissions_(submissionType, payload) {
+  const t = normalizeSubmissionType_(submissionType);
+  if (t === 'all' || t === 'session') appendSessionSummaryClean_(payload);
+  if (t === 'all' || t === 'feedback') appendFeedbackClean_(payload);
+}
+
+function appendAiTurnClean_(payload) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ai = payload.ai_result || {};
+  const history = Array.isArray(payload.history) ? payload.history : [];
+  const lastUser = history.slice().reverse().find(item => item && item.role === 'user');
+  appendRowByHeaders_(ss, SHEET_NAMES.aiClean, AI_TURNS_CLEAN_HEADERS, {
+    server_received_at: new Date(),
+    app_version: APP_VERSION,
+    tester_id: payload.testerId || '',
+    client_session_id: payload.clientSessionId || '',
+    raw_problem: payload.rawProblem || '',
+    turn_count: payload.turnCount == null ? '' : payload.turnCount,
+    user_last_reply: lastUser ? lastUser.content || '' : '',
+    ai_type: ai.type || '',
+    ai_question: ai.question || '',
+    ai_question_type: ai.question_type || '',
+    ai_reason: ai.reason || '',
+    ai_final_summary: ai.summary || '',
+    ai_next_action: ai.next_action || '',
+    ai_deliverable: ai.deliverable || '',
+    ai_unstructured_output: ai.unstructured_output ? 'TRUE' : '',
+    quality_flag: deriveQualityFlag_(payload, ai),
+    ai_history_json: JSON.stringify(history),
+    payload_json: JSON.stringify(payload),
+  });
+}
+
+function appendSessionSummaryClean_(payload) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  appendRowByHeaders_(ss, SHEET_NAMES.sessionClean, SESSION_SUMMARY_CLEAN_HEADERS, {
+    server_received_at: new Date(),
+    app_version: APP_VERSION,
+    tester_id: payload.testerId || '',
+    client_session_id: payload.clientSessionId || '',
+    stage: payload.stage || '',
+    discipline: payload.discipline || '',
+    familiarity: payload.familiarity || '',
+    raw_problem: payload.rawProblem || '',
+    duration: payload.duration || '',
+    deadline: payload.deadline || '',
+    session_log: payload.sessionLog || '',
+    result_summary: payload.resultSummary || '',
+    auto_diagnosis: payload.autoDiagnosis || '',
+    diagnosis_confirm: payload.diagnosisConfirm || '',
+    understand: payload.understand || '',
+    match: payload.match || '',
+    acceptance: payload.acceptance || '',
+    action_fit: payload.actionFit || '',
+    missed: payload.missed || '',
+    useful: payload.useful || '',
+    confusing: payload.confusing || '',
+    key_issue_detected: detectKeyIssue_(payload),
+    needs_manual_review: needsManualReview_(payload) ? 'TRUE' : '',
+    success_or_not: inferSuccess_(payload),
+    payload_json: JSON.stringify(payload),
+  });
+}
+
+function appendFeedbackClean_(payload) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  appendRowByHeaders_(ss, SHEET_NAMES.feedbackClean, FEEDBACK_CLEAN_HEADERS, {
+    server_received_at: new Date(),
+    app_version: APP_VERSION,
+    tester_id: payload.testerId || '',
+    client_session_id: payload.clientSessionId || '',
+    raw_problem: payload.rawProblem || '',
+    auto_diagnosis: payload.autoDiagnosis || '',
+    diagnosis_confirm: payload.diagnosisConfirm || '',
+    understand: payload.understand || '',
+    match: payload.match || '',
+    missed: payload.missed || '',
+    action_fit: payload.actionFit || '',
+    acceptance: payload.acceptance || '',
+    useful: payload.useful || '',
+    confusing: payload.confusing || '',
+    needs_manual_review: needsManualReview_(payload) ? 'TRUE' : '',
+    payload_json: JSON.stringify(payload),
+  });
+}
+
+function appendRowByHeaders_(ss, sheetName, headers, valuesByHeader) {
+  const sheet = getOrCreateSheet_(ss, sheetName);
+  ensureSpecificHeaders_(sheet, headers);
+  const row = headers.map(header => valuesByHeader[header] == null ? '' : valuesByHeader[header]);
+  sheet.appendRow(row);
+}
+
+function deriveQualityFlag_(payload, ai) {
+  const flags = [];
+  if (ai.unstructured_output) flags.push('unstructured_output');
+  if (ai.type === 'final' && !ai.next_action) flags.push('missing_next_action');
+  if (ai.type === 'final' && !ai.deliverable) flags.push('missing_deliverable');
+  if (ai.question && String(ai.question).indexOf('{') >= 0) flags.push('json_leak');
+  const text = [payload.rawProblem || '', JSON.stringify(payload.history || []), ai.summary || '', ai.raw_text || ''].join('\n');
+  if (/什么是|解释|没懂|吞鲸法|科研流程|搜聚分验合/.test(text)) flags.push('term_explanation_needed');
+  if (!flags.length) flags.push('ok');
+  return flags.join('|');
+}
+
+function detectKeyIssue_(payload) {
+  const text = [payload.rawProblem || '', payload.sessionLog || '', payload.resultSummary || '', payload.autoDiagnosis || ''].join('\n');
+  const issues = [];
+  if (/导师|老板|课题组/.test(text)) issues.push('advisor_conflict');
+  if (/价值|意义|应用价值|创新/.test(text)) issues.push('topic_value');
+  if (/写|论文|投稿|发表/.test(text)) issues.push('paper_writing');
+  if (/实验|数据|表征|计算/.test(text)) issues.push('experiment_or_data');
+  if (/什么是|解释|没懂|流程|吞鲸法/.test(text)) issues.push('term_confusion');
+  return issues.join('|') || 'unclear';
+}
+
+function needsManualReview_(payload) {
+  const text = [payload.resultSummary || '', payload.autoDiagnosis || '', payload.sessionLog || ''].join('\n');
+  if (/格式|JSON|raw_text|不完整|复核|没懂|最卡|废话/.test(text)) return true;
+  if (payload.diagnosisConfirm && payload.diagnosisConfirm !== '符合') return true;
+  if (payload.acceptance && String(payload.acceptance).indexOf('A3') >= 0) return true;
+  if (payload.match && /不相符|有点偏/.test(payload.match)) return true;
+  return false;
+}
+
+function inferSuccess_(payload) {
+  if (payload.acceptance && String(payload.acceptance).indexOf('A0') >= 0) return 'accepted_directly';
+  if (payload.acceptance && String(payload.acceptance).indexOf('A1') >= 0) return 'accepted_with_minor_revision';
+  if (payload.acceptance && String(payload.acceptance).indexOf('A2') >= 0) return 'logical_but_blocked';
+  if (payload.acceptance && String(payload.acceptance).indexOf('A3') >= 0) return 'not_solved';
+  return '';
+}
+
 function getOrCreateSheet_(ss, sheetName) {
   return ss.getSheetByName(sheetName) || ss.insertSheet(sheetName);
 }
@@ -672,6 +878,25 @@ function ensureHeaders_(sheet) {
 
   const existing = firstRow.map(value => String(value || '').trim()).filter(Boolean);
   const missing = HEADERS.filter(header => existing.indexOf(header) < 0);
+  if (missing.length) {
+    const startCol = existing.length + 1;
+    sheet.getRange(1, startCol, 1, missing.length).setValues([missing]);
+    sheet.setFrozenRows(1);
+  }
+}
+
+function ensureSpecificHeaders_(sheet, desiredHeaders) {
+  const width = Math.max(sheet.getLastColumn(), desiredHeaders.length, 1);
+  const firstRow = sheet.getRange(1, 1, 1, width).getValues()[0];
+  const hasAnyHeader = firstRow.some(value => value !== '');
+  if (!hasAnyHeader) {
+    sheet.getRange(1, 1, 1, desiredHeaders.length).setValues([desiredHeaders]);
+    sheet.setFrozenRows(1);
+    return;
+  }
+
+  const existing = firstRow.map(value => String(value || '').trim()).filter(Boolean);
+  const missing = desiredHeaders.filter(header => existing.indexOf(header) < 0);
   if (missing.length) {
     const startCol = existing.length + 1;
     sheet.getRange(1, startCol, 1, missing.length).setValues([missing]);
