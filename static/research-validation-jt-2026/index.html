@@ -455,6 +455,22 @@
       div.textContent = meta ? `${meta}\n${content}` : content;
       box.appendChild(div);
       box.scrollIntoView({ behavior: "smooth", block: "end" });
+      return div;
+    }
+    function appendAiLoading() {
+      const node = appendAiMessage("meta", "AI 正在处理，请稍等……");
+      node.dataset.loading = "true";
+      return node;
+    }
+    function removeAiLoading(node) {
+      if (node && node.parentNode) node.parentNode.removeChild(node);
+    }
+    function setAiBusy(isBusy) {
+      document.querySelectorAll('[onclick="startAiTest()"],[onclick="sendAiReply()"],[onclick="forceAiFinal()"]').forEach(btn => {
+        btn.disabled = isBusy;
+        btn.style.opacity = isBusy ? "0.65" : "";
+        btn.style.cursor = isBusy ? "not-allowed" : "";
+      });
     }
     function resetAiChat() {
       aiHistory = [];
@@ -500,7 +516,8 @@
     }
     async function requestAiStep(forceFinal) {
       const rawProblem = document.getElementById("rawProblem").value.trim();
-      appendAiMessage("meta", "AI 正在处理，请稍等……");
+      const loadingNode = appendAiLoading();
+      setAiBusy(true);
       try {
         const res = await fetch(GAS_WEB_APP_URL, {
           method: "POST",
@@ -523,6 +540,8 @@
       } catch (err) {
         appendAiMessage("meta", `AI 调用失败：${err.message || err}\n如果这是跨域问题，请改用人工主持记录或导出 JSON。`);
       } finally {
+        removeAiLoading(loadingNode);
+        setAiBusy(false);
         syncAiLogToFields();
         saveLocalSilent();
       }
