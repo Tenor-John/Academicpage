@@ -480,7 +480,11 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
     function collectData() {
-      const data = { collectedAt: new Date().toISOString(), page: "research-validation-jt-2026" };
+      const data = {
+        collectedAt: new Date().toISOString(),
+        page: "research-validation-jt-2026",
+        clientSessionId: currentSessionId(),
+      };
       document.querySelectorAll("input, textarea, select").forEach(el => {
         if (!el.name && !el.id) return;
         const key = el.name || el.id;
@@ -667,6 +671,7 @@
             action: "ai_step",
             submissionType: "ai",
             testerId: document.getElementById("testerId").value || "",
+            clientSessionId: currentSessionId(),
             page: "research-validation-jt-2026",
             collectedAt: new Date().toISOString(),
             rawProblem,

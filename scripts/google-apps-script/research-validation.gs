@@ -29,7 +29,7 @@
  * 7. 将部署后的 Web App URL 填入前端页面的 GAS_WEB_APP_URL
  */
 
-const APP_VERSION = '2026-07-11-ai-agent-v4-minimax-auth';
+const APP_VERSION = '2026-07-15-analysis-schema-v1';
 
 const SPREADSHEET_ID = '1zeaJKth9AUHjZkifqhFcNkrprKWzqXxG-vm0vAWTXUA';
 
@@ -46,8 +46,10 @@ const SHEET_NAMES = {
 
 const HEADERS = [
   'server_received_at',
+  'app_version',
   'submission_type',
   'tester_id',
+  'client_session_id',
   'page',
   'client_collected_at',
   'stage',
@@ -58,12 +60,40 @@ const HEADERS = [
   'deadline',
   'session_log',
   'result_summary',
+  'auto_diagnosis',
+  'diagnosis_confirm',
   'understand',
   'match',
+  'missed',
   'action_fit',
   'acceptance',
+  'useful',
+  'confusing',
   'executed',
   'deliverable',
+  'followup_note',
+  'ai_action',
+  'ai_type',
+  'ai_question',
+  'ai_question_type',
+  'ai_reason',
+  'ai_processing_direction',
+  'ai_key_judgment',
+  'ai_value_chain',
+  'ai_minimum_validation_card',
+  'ai_go_modify_stop',
+  'ai_decision_question',
+  'ai_next_action',
+  'ai_action_plan_72h',
+  'ai_advisor_conversation_script',
+  'ai_success_criteria',
+  'ai_risk_or_boundary',
+  'ai_followup_questions_count',
+  'ai_turn_count',
+  'ai_force_final',
+  'ai_unstructured_output',
+  'ai_raw_text',
+  'ai_history_json',
   'payload_json',
 ];
 
@@ -568,29 +598,61 @@ function appendSubmission_(sheetName, submissionType, payload) {
   const sheet = getOrCreateSheet_(ss, sheetName);
   ensureHeaders_(sheet);
 
-  const row = [
-    new Date(),
-    submissionType,
-    payload.testerId || '',
-    payload.page || '',
-    payload.collectedAt || '',
-    payload.stage || '',
-    payload.discipline || '',
-    payload.familiarity || '',
-    payload.rawProblem || '',
-    payload.duration || '',
-    payload.deadline || '',
-    payload.sessionLog || '',
-    payload.resultSummary || '',
-    payload.understand || '',
-    payload.match || '',
-    payload.actionFit || '',
-    payload.acceptance || '',
-    payload.executed || '',
-    payload.deliverable || '',
-    JSON.stringify(payload),
-  ];
-
+  const ai = payload.ai_result || {};
+  const valuesByHeader = {
+    server_received_at: new Date(),
+    app_version: APP_VERSION,
+    submission_type: submissionType,
+    tester_id: payload.testerId || '',
+    client_session_id: payload.clientSessionId || '',
+    page: payload.page || '',
+    client_collected_at: payload.collectedAt || '',
+    stage: payload.stage || '',
+    discipline: payload.discipline || '',
+    familiarity: payload.familiarity || '',
+    raw_problem: payload.rawProblem || '',
+    duration: payload.duration || '',
+    deadline: payload.deadline || '',
+    session_log: payload.sessionLog || '',
+    result_summary: payload.resultSummary || '',
+    auto_diagnosis: payload.autoDiagnosis || '',
+    diagnosis_confirm: payload.diagnosisConfirm || '',
+    understand: payload.understand || '',
+    match: payload.match || '',
+    missed: payload.missed || '',
+    action_fit: payload.actionFit || '',
+    acceptance: payload.acceptance || '',
+    useful: payload.useful || '',
+    confusing: payload.confusing || '',
+    executed: payload.executed || '',
+    deliverable: payload.deliverable || '',
+    followup_note: payload.followupNote || '',
+    ai_action: payload.action || '',
+    ai_type: ai.type || '',
+    ai_question: ai.question || '',
+    ai_question_type: ai.question_type || '',
+    ai_reason: ai.reason || '',
+    ai_processing_direction: ai.processing_direction || '',
+    ai_key_judgment: ai.key_judgment || '',
+    ai_value_chain: ai.value_chain || '',
+    ai_minimum_validation_card: ai.minimum_validation_card || '',
+    ai_go_modify_stop: ai.go_modify_stop || '',
+    ai_decision_question: ai.decision_question || '',
+    ai_next_action: ai.next_action || '',
+    ai_action_plan_72h: ai.action_plan_72h || '',
+    ai_advisor_conversation_script: ai.advisor_conversation_script || '',
+    ai_success_criteria: ai.success_criteria || '',
+    ai_risk_or_boundary: ai.risk_or_boundary || '',
+    ai_followup_questions_count: ai.followup_questions_count || '',
+    ai_turn_count: payload.turnCount == null ? '' : payload.turnCount,
+    ai_force_final: payload.forceFinal ? 'TRUE' : '',
+    ai_unstructured_output: ai.unstructured_output ? 'TRUE' : '',
+    ai_raw_text: ai.raw_text || '',
+    ai_history_json: JSON.stringify(payload.history || []),
+    payload_json: JSON.stringify(payload),
+  };
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const row = headers.map(header => valuesByHeader[header] == null ? '' : valuesByHeader[header]);
   sheet.appendRow(row);
 }
 
@@ -599,10 +661,20 @@ function getOrCreateSheet_(ss, sheetName) {
 }
 
 function ensureHeaders_(sheet) {
-  const firstRow = sheet.getRange(1, 1, 1, HEADERS.length).getValues()[0];
+  const width = Math.max(sheet.getLastColumn(), HEADERS.length, 1);
+  const firstRow = sheet.getRange(1, 1, 1, width).getValues()[0];
   const hasAnyHeader = firstRow.some(value => value !== '');
   if (!hasAnyHeader) {
     sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+    sheet.setFrozenRows(1);
+    return;
+  }
+
+  const existing = firstRow.map(value => String(value || '').trim()).filter(Boolean);
+  const missing = HEADERS.filter(header => existing.indexOf(header) < 0);
+  if (missing.length) {
+    const startCol = existing.length + 1;
+    sheet.getRange(1, startCol, 1, missing.length).setValues([missing]);
     sheet.setFrozenRows(1);
   }
 }
