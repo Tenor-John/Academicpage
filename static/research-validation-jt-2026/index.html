@@ -166,6 +166,35 @@
     .msg.user { background: #f1f5f9; border: 1px solid #e2e8f0; }
     .msg.ai { background: #eef2ff; border: 1px solid #c7d2fe; }
     .msg.meta { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 13px; }
+    .result-card {
+      background: #eef2ff;
+      border: 1px solid #c7d2fe;
+      border-radius: 14px;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+    .result-card h3 { margin: 0; font-size: 18px; }
+    .result-grid { display: grid; gap: 10px; }
+    .result-item {
+      background: #fff;
+      border: 1px solid #dbe4ff;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .result-item strong {
+      display: block;
+      color: #3730a3;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+    .result-item .body {
+      white-space: pre-wrap;
+      color: #1f2937;
+    }
+    .result-item.primary { border-color: #93c5fd; background: #eff6ff; }
+    .result-item.action { border-color: #86efac; background: #f0fdf4; }
+    .result-item.risk { border-color: #fde68a; background: #fffbeb; }
     footer {
       text-align: center;
       color: var(--muted);
@@ -421,6 +450,7 @@
     const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxXJ86wdGcqyVJ21AT7_5wlSFvOxsiLeGIqvWHHLwJZCNPDkDxMYsFwCUXVYeyOQ-Hx/exec";
     let aiHistory = [];
     let aiTurnCount = 0;
+    let aiFinalized = false;
 
     const phases = [...document.querySelectorAll(".phase")].map(x => x.id);
     document.querySelectorAll("nav button").forEach(btn => {
@@ -462,19 +492,77 @@
       node.dataset.loading = "true";
       return node;
     }
+    function appendStructuredResult(result) {
+      const box = document.getElementById("aiChat");
+      const card = document.createElement("div");
+      card.className = "result-card";
+      const title = document.createElement("h3");
+      title.textContent = "AI 正式测试结果";
+      card.appendChild(title);
+      const grid = document.createElement("div");
+      grid.className = "result-grid";
+      const items = [
+        ["一句话结论", result.summary || result.processing_direction || "", "primary"],
+        ["关键判断", result.key_judgment || "", "primary"],
+        ["下一步具体动作", result.next_action || "", "action"],
+        ["72小时行动计划", result.action_plan_72h || "", "action"],
+        ["可检查结果", result.deliverable || "", "action"],
+        ["完成标准", result.success_criteria || "", "action"],
+        ["价值链", result.value_chain || "", ""],
+        ["最小价值验证卡", result.minimum_validation_card || "", ""],
+        ["Go / Modify / Stop 标准", result.go_modify_stop || "", ""],
+        ["需要对方回答的关键问题", result.decision_question || "", ""],
+        ["导师/合作者沟通句式", result.advisor_conversation_script || "", ""],
+        ["边界/风险", result.risk_or_boundary || "", "risk"],
+      ].filter(([, value]) => String(value || "").trim());
+      items.forEach(([label, value, kind]) => {
+        const item = document.createElement("div");
+        item.className = `result-item ${kind || ""}`.trim();
+        const strong = document.createElement("strong");
+        strong.textContent = label;
+        const body = document.createElement("div");
+        body.className = "body";
+        body.textContent = String(value || "").trim();
+        item.appendChild(strong);
+        item.appendChild(body);
+        grid.appendChild(item);
+      });
+      card.appendChild(grid);
+      box.appendChild(card);
+      card.scrollIntoView({ behavior: "smooth", block: "end" });
+      return card;
+    }
     function removeAiLoading(node) {
       if (node && node.parentNode) node.parentNode.removeChild(node);
     }
     function setAiBusy(isBusy) {
       document.querySelectorAll('[onclick="startAiTest()"],[onclick="sendAiReply()"],[onclick="forceAiFinal()"]').forEach(btn => {
-        btn.disabled = isBusy;
-        btn.style.opacity = isBusy ? "0.65" : "";
-        btn.style.cursor = isBusy ? "not-allowed" : "";
+        const shouldDisable = isBusy || (aiFinalized && btn.getAttribute("onclick") !== "startAiTest()");
+        btn.disabled = shouldDisable;
+        btn.style.opacity = shouldDisable ? "0.65" : "";
+        btn.style.cursor = shouldDisable ? "not-allowed" : "";
+      });
+    }
+    function setAiFinalized(isFinalized) {
+      aiFinalized = isFinalized;
+      const replyBox = document.getElementById("aiUserReply");
+      const sendBtn = document.querySelector('[onclick="sendAiReply()"]');
+      const finalBtn = document.querySelector('[onclick="forceAiFinal()"]');
+      if (replyBox) {
+        replyBox.disabled = isFinalized;
+        replyBox.placeholder = isFinalized ? "本轮已生成正式测试结果。如需继续，请先清空 AI 对话后重新开始。" : "看到 AI 的追问后，在这里回答。";
+      }
+      [sendBtn, finalBtn].forEach(btn => {
+        if (!btn) return;
+        btn.disabled = isFinalized;
+        btn.style.opacity = isFinalized ? "0.55" : "";
+        btn.style.cursor = isFinalized ? "not-allowed" : "";
       });
     }
     function resetAiChat() {
       aiHistory = [];
       aiTurnCount = 0;
+      setAiFinalized(false);
       document.getElementById("aiChat").innerHTML = "";
       document.getElementById("aiUserReply").value = "";
       document.getElementById("sessionLog").value = "";
@@ -496,11 +584,16 @@
       }
       aiHistory = [];
       aiTurnCount = 0;
+      setAiFinalized(false);
       document.getElementById("aiChat").innerHTML = "";
       appendAiMessage("user", rawProblem, "原始问题");
       await requestAiStep(false);
     }
     async function sendAiReply() {
+      if (aiFinalized) {
+        alert("本轮已经生成正式测试结果，不再继续追问。如需继续，请清空 AI 对话后重新开始。");
+        return;
+      }
       const reply = document.getElementById("aiUserReply").value.trim();
       if (!reply) {
         alert("请先填写你的回答。");
@@ -512,6 +605,7 @@
       await requestAiStep(false);
     }
     async function forceAiFinal() {
+      if (aiFinalized) return;
       await requestAiStep(true);
     }
     async function requestAiStep(forceFinal) {
@@ -596,16 +690,19 @@
           .trim();
         appendAiMessage("ai", rawDisplay, "AI 回答（需主持人复核）");
         document.getElementById("resultSummary").value = rawDisplay;
+        setAiFinalized(true);
         updateAutoDiagnosis();
         return;
       }
       aiHistory.push({ role: "assistant", content: result.summary || summary });
-      appendAiMessage("ai", summary, "AI 正式测试结果");
+      appendStructuredResult({ ...result, summary: result.summary || "" });
       document.getElementById("resultSummary").value = result.summary || summary;
       const completenessWarning = buildCompletenessWarning(result, summary);
       if (completenessWarning) {
         appendAiMessage("meta", completenessWarning, "主持人复核提示");
       }
+      setAiFinalized(true);
+      appendAiMessage("meta", "本轮已经生成正式测试结果，系统已停止继续追问。若需要重新测试，请点击“清空 AI 对话”后重新开始。");
       updateAutoDiagnosis();
     }
     function normalizeClientAiResult(result) {
