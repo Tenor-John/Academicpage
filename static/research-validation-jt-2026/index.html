@@ -176,6 +176,22 @@
     }
     .result-card h3 { margin: 0; font-size: 18px; }
     .result-grid { display: grid; gap: 10px; }
+    .result-details {
+      border: 1px solid #dbe4ff;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.65);
+      overflow: hidden;
+    }
+    .result-details summary {
+      cursor: pointer;
+      padding: 10px 12px;
+      font-weight: 750;
+      color: #3730a3;
+      user-select: none;
+    }
+    .result-details .result-grid {
+      padding: 0 10px 10px;
+    }
     .result-item {
       background: #fff;
       border: 1px solid #dbe4ff;
@@ -499,10 +515,27 @@
       const title = document.createElement("h3");
       title.textContent = "AI 正式测试结果";
       card.appendChild(title);
+      const publicSummary = buildPublicSummary(result);
+      const topItem = document.createElement("div");
+      topItem.className = "result-item primary";
+      const topLabel = document.createElement("strong");
+      topLabel.textContent = "给被访者的最终摘要";
+      const topBody = document.createElement("div");
+      topBody.className = "body";
+      topBody.textContent = publicSummary;
+      topItem.appendChild(topLabel);
+      topItem.appendChild(topBody);
+      card.appendChild(topItem);
+
+      const details = document.createElement("details");
+      details.className = "result-details";
+      const detailsSummary = document.createElement("summary");
+      detailsSummary.textContent = "展开详细依据和行动拆解";
+      details.appendChild(detailsSummary);
       const grid = document.createElement("div");
       grid.className = "result-grid";
       const items = [
-        ["一句话结论", result.summary || result.processing_direction || "", "primary"],
+        ["处理方向", result.processing_direction || "", "primary"],
         ["关键判断", result.key_judgment || "", "primary"],
         ["下一步具体动作", result.next_action || "", "action"],
         ["72小时行动计划", result.action_plan_72h || "", "action"],
@@ -527,10 +560,24 @@
         item.appendChild(body);
         grid.appendChild(item);
       });
-      card.appendChild(grid);
+      if (items.length) {
+        details.appendChild(grid);
+        card.appendChild(details);
+      }
       box.appendChild(card);
       card.scrollIntoView({ behavior: "smooth", block: "end" });
       return card;
+    }
+    function buildPublicSummary(result) {
+      const explicit = String(result?.summary || "").trim();
+      if (explicit) return explicit;
+      return [
+        result.processing_direction ? `处理方向：${result.processing_direction}` : "",
+        result.key_judgment ? `关键判断：${result.key_judgment}` : "",
+        result.next_action ? `下一步：${result.next_action}` : "",
+        result.deliverable ? `可检查结果：${result.deliverable}` : "",
+        result.risk_or_boundary ? `边界/风险：${result.risk_or_boundary}` : "",
+      ].filter(Boolean).join("\n");
     }
     function removeAiLoading(node) {
       if (node && node.parentNode) node.parentNode.removeChild(node);
@@ -694,9 +741,10 @@
         updateAutoDiagnosis();
         return;
       }
-      aiHistory.push({ role: "assistant", content: result.summary || summary });
-      appendStructuredResult({ ...result, summary: result.summary || "" });
-      document.getElementById("resultSummary").value = result.summary || summary;
+      const publicSummary = buildPublicSummary(result) || summary;
+      aiHistory.push({ role: "assistant", content: publicSummary });
+      appendStructuredResult({ ...result, summary: publicSummary });
+      document.getElementById("resultSummary").value = publicSummary;
       const completenessWarning = buildCompletenessWarning(result, summary);
       if (completenessWarning) {
         appendAiMessage("meta", completenessWarning, "主持人复核提示");
