@@ -509,12 +509,20 @@
       box.scrollIntoView({ behavior: "smooth", block: "end" });
       return div;
     }
+    function clearAiErrorMessage() {
+      document.querySelectorAll("[data-ai-error='true']").forEach(node => node.remove());
+    }
     function appendAiErrorMessage(error, retryFn) {
       const box = document.getElementById("aiChat");
-      const div = document.createElement("div");
+      const existing = box.querySelector("[data-ai-error='true']");
+      const div = existing || document.createElement("div");
       div.className = "msg meta";
+      div.dataset.aiError = "true";
+      div.innerHTML = "";
+      let errorText = error && error.message ? error.message : String(error || "未知错误");
+      errorText = errorText.replace(/^AI 调用失败[：:]\s*/, "");
       const message = [
-        `AI 调用失败：${error && error.message ? error.message : error}`,
+        `AI 调用失败：${errorText}`,
         "你可以先点“重新调用 AI”；如果仍失败，点“刷新页面保留数据”。",
         "如果刷新后仍失败，请确认 Apps Script 已保存并重新部署 Web App。"
       ].join("\n");
@@ -538,7 +546,7 @@
       actions.appendChild(retry);
       actions.appendChild(refresh);
       div.appendChild(actions);
-      box.appendChild(div);
+      if (!existing) box.appendChild(div);
       box.scrollIntoView({ behavior: "smooth", block: "end" });
       return div;
     }
@@ -649,6 +657,7 @@
       aiHistory = [];
       aiTurnCount = 0;
       setAiFinalized(false);
+      clearAiErrorMessage();
       document.getElementById("aiChat").innerHTML = "";
       document.getElementById("aiUserReply").value = "";
       document.getElementById("sessionLog").value = "";
@@ -696,6 +705,7 @@
     }
     async function requestAiStep(forceFinal) {
       const rawProblem = document.getElementById("rawProblem").value.trim();
+      clearAiErrorMessage();
       const loadingNode = appendAiLoading();
       setAiBusy(true);
       try {
@@ -713,6 +723,7 @@
         };
         const json = await callGasJsonp(payload);
         if (!json.ok) throw new Error(json.error || "AI 返回失败");
+        clearAiErrorMessage();
         handleAiResult(json.result);
       } catch (err) {
         appendAiErrorMessage(err, () => requestAiStep(forceFinal));
@@ -760,6 +771,7 @@
       window.location.href = url.toString();
     }
     function handleAiResult(result) {
+      clearAiErrorMessage();
       result = normalizeClientAiResult(result);
       if (!result || !result.type) {
         const raw = JSON.stringify(result || {}, null, 2);
