@@ -168,12 +168,47 @@ const FEEDBACK_CLEAN_HEADERS = [
   'payload_json',
 ];
 
-function doGet() {
+function doGet(e) {
+  const params = e && e.parameter ? e.parameter : {};
+  const callback = params.callback || '';
+  if (params.payload) {
+    try {
+      const payload = JSON.parse(params.payload);
+      let result;
+      if (payload.action === 'ai_step') {
+        result = handleAiStepObject_(payload);
+      } else {
+        const submissionType = normalizeSubmissionType_(payload.submissionType || payload.section || 'all');
+        appendSubmission_(SHEET_NAMES.all, submissionType, payload);
+        if (submissionType !== 'all') {
+          appendSubmission_(SHEET_NAMES[submissionType] || SHEET_NAMES.all, submissionType, payload);
+        }
+        appendCleanSubmissions_(submissionType, payload);
+        result = {
+          ok: true,
+          submissionType,
+          testerId: payload.testerId || '',
+          receivedAt: new Date().toISOString(),
+        };
+      }
+      if (callback) return jsonpOutput_(callback, result);
+      return jsonOutput(result);
+    } catch (err) {
+      logError_(err, e);
+      const errorResult = {
+        ok: false,
+        error: String(err && err.message ? err.message : err),
+      };
+      if (callback) return jsonpOutput_(callback, errorResult);
+      return jsonOutput(errorResult);
+    }
+  }
+
   return jsonOutput({
     ok: true,
     version: APP_VERSION,
     service: 'research-validation-collector',
-    message: 'Apps Script endpoint is running. Use POST from the validation page.',
+    message: 'Apps Script endpoint is running. Use POST/JSONP from the validation page.',
     supportedActions: ['ai_step'],
   });
 }
@@ -203,7 +238,7 @@ function doPost(e) {
   try {
     const payload = parsePayload_(e);
     if (payload.action === 'ai_step') {
-      return handleAiStep_(payload);
+      return jsonOutput(handleAiStepObject_(payload));
     }
 
     const submissionType = normalizeSubmissionType_(payload.submissionType || payload.section || 'all');
@@ -229,7 +264,7 @@ function doPost(e) {
   }
 }
 
-function handleAiStep_(payload) {
+function handleAiStepObject_(payload) {
   const aiResult = runResearchValidationAgent_(payload);
   const enriched = Object.assign({}, payload, {
     submissionType: 'ai',
@@ -239,12 +274,12 @@ function handleAiStep_(payload) {
   appendSubmission_(SHEET_NAMES.all, 'ai', enriched);
   appendSubmission_(SHEET_NAMES.ai, 'ai', enriched);
   appendAiTurnClean_(enriched);
-  return jsonOutput({
+  return {
     ok: true,
     action: 'ai_step',
     result: aiResult,
     receivedAt: new Date().toISOString(),
-  });
+  };
 }
 
 function runResearchValidationAgent_(payload) {
@@ -969,4 +1004,12 @@ function jsonOutput(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+function jsonpOutput_(callback, obj) {
+  const safeCallback = String(callback || '').replace(/[^\w.$]/g, '');
+  if (!safeCallback) return jsonOutput(obj);
+  return ContentService
+    .createTextOutput(safeCallback + '(' + JSON.stringify(obj) + ');')
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
 }
