@@ -361,6 +361,7 @@
           <button class="btn" type="button" onclick="startAiTest()">开始 AI 正式测试</button>
           <button class="btn secondary" type="button" onclick="forceAiFinal()">停止追问，生成结果</button>
           <button class="btn secondary" type="button" onclick="resetAiChat()">清空 AI 对话</button>
+          <button class="btn secondary" type="button" onclick="refreshPageKeepData()">刷新页面保留数据</button>
         </div>
         <div class="chat-box" id="aiChat"></div>
         <label for="aiUserReply">你的回答</label>
@@ -504,6 +505,39 @@
       const div = document.createElement("div");
       div.className = `msg ${role === "user" ? "user" : role === "meta" ? "meta" : "ai"}`;
       div.textContent = meta ? `${meta}\n${content}` : content;
+      box.appendChild(div);
+      box.scrollIntoView({ behavior: "smooth", block: "end" });
+      return div;
+    }
+    function appendAiErrorMessage(error, retryFn) {
+      const box = document.getElementById("aiChat");
+      const div = document.createElement("div");
+      div.className = "msg meta";
+      const message = [
+        `AI 调用失败：${error && error.message ? error.message : error}`,
+        "你可以先点“重新调用 AI”；如果仍失败，点“刷新页面保留数据”。",
+        "如果刷新后仍失败，请确认 Apps Script 已保存并重新部署 Web App。"
+      ].join("\n");
+      const text = document.createElement("div");
+      text.textContent = message;
+      div.appendChild(text);
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+      actions.style.marginTop = "10px";
+      const retry = document.createElement("button");
+      retry.className = "btn";
+      retry.type = "button";
+      retry.textContent = "重新调用 AI";
+      retry.onclick = retryFn;
+      const refresh = document.createElement("button");
+      refresh.className = "btn secondary";
+      refresh.type = "button";
+      refresh.textContent = "刷新页面保留数据";
+      refresh.onclick = refreshPageKeepData;
+      actions.appendChild(retry);
+      actions.appendChild(refresh);
+      div.appendChild(actions);
       box.appendChild(div);
       box.scrollIntoView({ behavior: "smooth", block: "end" });
       return div;
@@ -681,7 +715,7 @@
         if (!json.ok) throw new Error(json.error || "AI 返回失败");
         handleAiResult(json.result);
       } catch (err) {
-        appendAiMessage("meta", `AI 调用失败：${err.message || err}\n如果这是跨域问题，请改用人工主持记录或导出 JSON。`);
+        appendAiErrorMessage(err, () => requestAiStep(forceFinal));
       } finally {
         removeAiLoading(loadingNode);
         setAiBusy(false);
@@ -718,6 +752,12 @@
         script.src = `${GAS_WEB_APP_URL}${sep}callback=${encodeURIComponent(callbackName)}&payload=${encodeURIComponent(JSON.stringify(payload))}`;
         document.body.appendChild(script);
       });
+    }
+    function refreshPageKeepData() {
+      saveLocalSilent();
+      const url = new URL(window.location.href);
+      url.searchParams.set("refresh", Date.now().toString());
+      window.location.href = url.toString();
     }
     function handleAiResult(result) {
       result = normalizeClientAiResult(result);
