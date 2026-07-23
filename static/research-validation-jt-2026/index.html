@@ -470,6 +470,7 @@
     let aiHistory = [];
     let aiTurnCount = 0;
     let aiFinalized = false;
+    let awaitingFinalAfterLastQuestion = false;
 
     const phases = [...document.querySelectorAll(".phase")].map(x => x.id);
     document.querySelectorAll("nav button").forEach(btn => {
@@ -658,6 +659,7 @@
     function resetAiChat() {
       aiHistory = [];
       aiTurnCount = 0;
+      awaitingFinalAfterLastQuestion = false;
       setAiFinalized(false);
       clearAiErrorMessage();
       document.getElementById("aiChat").innerHTML = "";
@@ -681,6 +683,7 @@
       }
       aiHistory = [];
       aiTurnCount = 0;
+      awaitingFinalAfterLastQuestion = false;
       setAiFinalized(false);
       document.getElementById("aiChat").innerHTML = "";
       appendAiMessage("user", rawProblem, "原始问题");
@@ -699,7 +702,13 @@
       aiHistory.push({ role: "user", content: reply });
       appendAiMessage("user", reply, "你的回答");
       document.getElementById("aiUserReply").value = "";
-      await requestAiStep(false);
+      if (awaitingFinalAfterLastQuestion) {
+        awaitingFinalAfterLastQuestion = false;
+        appendAiMessage("meta", "追问已结束，正在生成正式测试结果，请稍等……");
+        await requestAiStep(true);
+      } else {
+        await requestAiStep(false);
+      }
     }
     async function forceAiFinal() {
       if (aiFinalized) return;
@@ -944,6 +953,10 @@
         aiTurnCount += 1;
         aiHistory.push({ role: "assistant", content: q });
         appendAiMessage("ai", q, `AI 追问 ${aiTurnCount}｜${normalizedQuestion.question_type || "追问"}`);
+        if (isLastQuestion(normalizedQuestion, q)) {
+          awaitingFinalAfterLastQuestion = true;
+          appendAiMessage("meta", "这是最后一个追问。你回复后，系统将停止追问并自动生成正式测试结果。");
+        }
         return;
       }
       const summary = [
@@ -967,6 +980,14 @@
           .replace(/^```\s*/i, "")
           .replace(/\s*```$/i, "")
           .trim();
+        if (looksLikeLastQuestion(rawDisplay)) {
+          aiTurnCount += 1;
+          awaitingFinalAfterLastQuestion = true;
+          aiHistory.push({ role: "assistant", content: rawDisplay });
+          appendAiMessage("ai", rawDisplay, `AI 追问 ${aiTurnCount}｜最后追问`);
+          appendAiMessage("meta", "这是最后一个追问。你回复后，系统将停止追问并自动生成正式测试结果。");
+          return;
+        }
         appendAiMessage("ai", rawDisplay, "AI 回答（需主持人复核）");
         document.getElementById("resultSummary").value = rawDisplay;
         setAiFinalized(true);
@@ -981,9 +1002,18 @@
       if (completenessWarning) {
         appendAiMessage("meta", completenessWarning, "主持人复核提示");
       }
+      awaitingFinalAfterLastQuestion = false;
       setAiFinalized(true);
       appendAiMessage("meta", "本轮已经生成正式测试结果，系统已停止继续追问。若需要重新测试，请点击“清空 AI 对话”后重新开始。");
       updateAutoDiagnosis();
+    }
+    function isLastQuestion(result, text) {
+      return /最后|最终|收尾|最后追问|最后一个/.test(String(result?.question_type || "") + "\n" + String(text || ""));
+    }
+    function looksLikeLastQuestion(text) {
+      const s = String(text || "").trim();
+      if (!/[？?]/.test(s)) return false;
+      return /最后追问|最后一个|最后确认|最终确认|收尾问题/.test(s) || /^最后追问[：:]/.test(s);
     }
     function normalizeQuestionResult(result) {
       const text = String(result?.question || "").trim();
