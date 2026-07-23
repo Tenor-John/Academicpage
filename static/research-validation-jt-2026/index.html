@@ -496,6 +496,7 @@
         }
         data[key] = el.value;
       });
+      data.resultSummaryForExport = deriveResultSummaryForExport(data);
       return data;
     }
     function appendAiMessage(role, content, meta = "") {
@@ -933,7 +934,39 @@
         });
       } catch {}
     }
+    function deriveResultSummaryForExport(data = collectData()) {
+      const explicit = String(data.resultSummary || "").trim();
+      if (explicit) return explicit;
+
+      const sessionLog = String(data.sessionLog || "").trim();
+      const autoDiagnosis = String(data.autoDiagnosis || "").trim();
+      const aiLines = sessionLog
+        .split(/\n+/)
+        .map(line => line.trim())
+        .filter(line => /^(AI|助手|Agent)[：:]/.test(line))
+        .map(line => line.replace(/^(AI|助手|Agent)[：:]\s*/, "").trim())
+        .filter(Boolean);
+      const actionLike = aiLines
+        .slice()
+        .reverse()
+        .find(line => /处理方向|关键判断|下一步|具体动作|交付物|可检查|72小时|建议/.test(line));
+      if (actionLike) {
+        return `从正式测试记录自动提取：${actionLike}`;
+      }
+
+      if (autoDiagnosis) {
+        const firstDiagnosis = autoDiagnosis.split(/\n+/).map(line => line.trim()).filter(Boolean)[0];
+        if (firstDiagnosis) return `自动诊断摘要：${firstDiagnosis}`;
+      }
+
+      if (sessionLog) {
+        return "已存在正式测试记录，但尚未生成“发给被访者的测试结果摘要”。请主持人点击“停止追问，生成结果”，或人工补写摘要。本轮不应按独立 AI 成功案例统计。";
+      }
+
+      return "尚未生成正式测试结果摘要。请先完成正式测试，再进入测后反馈或执行回访。";
+    }
     function makeSummary(data = collectData()) {
+      const resultSummary = data.resultSummaryForExport || deriveResultSummaryForExport(data);
       return [
         `测试者编号：${data.testerId || "未填"}`,
         `科研阶段：${data.stage || "未填"}`,
@@ -943,7 +976,7 @@
         data.rawProblem || "未填",
         "",
         "正式测试结果摘要：",
-        data.resultSummary || "未填",
+        resultSummary,
         "",
         `测后接受度：${data.acceptance || "未填"}`,
         `是否执行：${data.executed || "未填"}`,

@@ -672,6 +672,7 @@ function appendSubmission_(sheetName, submissionType, payload) {
   ensureHeaders_(sheet);
 
   const ai = payload.ai_result || {};
+  const resultSummaryForExport = deriveResultSummaryForExport_(payload);
   const valuesByHeader = {
     server_received_at: new Date(),
     app_version: APP_VERSION,
@@ -687,7 +688,7 @@ function appendSubmission_(sheetName, submissionType, payload) {
     duration: payload.duration || '',
     deadline: payload.deadline || '',
     session_log: payload.sessionLog || '',
-    result_summary: payload.resultSummary || '',
+    result_summary: resultSummaryForExport,
     auto_diagnosis: payload.autoDiagnosis || '',
     diagnosis_confirm: payload.diagnosisConfirm || '',
     understand: payload.understand || '',
@@ -740,6 +741,7 @@ function appendAiTurnClean_(payload) {
   const ai = payload.ai_result || {};
   const history = Array.isArray(payload.history) ? payload.history : [];
   const lastUser = history.slice().reverse().find(item => item && item.role === 'user');
+  const resultSummaryForExport = deriveResultSummaryForExport_(payload);
   appendRowByHeaders_(ss, SHEET_NAMES.aiClean, AI_TURNS_CLEAN_HEADERS, {
     server_received_at: new Date(),
     app_version: APP_VERSION,
@@ -752,7 +754,7 @@ function appendAiTurnClean_(payload) {
     ai_question: ai.question || '',
     ai_question_type: ai.question_type || '',
     ai_reason: ai.reason || '',
-    ai_final_summary: ai.summary || '',
+    ai_final_summary: ai.summary || resultSummaryForExport,
     ai_next_action: ai.next_action || '',
     ai_deliverable: ai.deliverable || '',
     ai_unstructured_output: ai.unstructured_output ? 'TRUE' : '',
@@ -764,6 +766,7 @@ function appendAiTurnClean_(payload) {
 
 function appendSessionSummaryClean_(payload) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const resultSummaryForExport = deriveResultSummaryForExport_(payload);
   appendRowByHeaders_(ss, SHEET_NAMES.sessionClean, SESSION_SUMMARY_CLEAN_HEADERS, {
     server_received_at: new Date(),
     app_version: APP_VERSION,
@@ -776,7 +779,7 @@ function appendSessionSummaryClean_(payload) {
     duration: payload.duration || '',
     deadline: payload.deadline || '',
     session_log: payload.sessionLog || '',
-    result_summary: payload.resultSummary || '',
+    result_summary: resultSummaryForExport,
     auto_diagnosis: payload.autoDiagnosis || '',
     diagnosis_confirm: payload.diagnosisConfirm || '',
     understand: payload.understand || '',
@@ -822,6 +825,46 @@ function appendRowByHeaders_(ss, sheetName, headers, valuesByHeader) {
   sheet.appendRow(row);
 }
 
+function deriveResultSummaryForExport_(payload) {
+  const explicit = String(payload.resultSummary || '').trim();
+  if (explicit) return explicit;
+
+  const ai = payload.ai_result || {};
+  const aiSummary = [
+    ai.summary ? String(ai.summary).trim() : '',
+    ai.processing_direction ? '处理方向：' + ai.processing_direction : '',
+    ai.key_judgment ? '关键判断：' + ai.key_judgment : '',
+    ai.next_action ? '下一步：' + ai.next_action : '',
+    ai.deliverable ? '可检查结果：' + ai.deliverable : '',
+  ].filter(Boolean).join('\n').trim();
+  if (aiSummary) return aiSummary;
+
+  const sessionLog = String(payload.sessionLog || '').trim();
+  const autoDiagnosis = String(payload.autoDiagnosis || '').trim();
+  const aiLines = sessionLog
+    .split(/\n+/)
+    .map(line => line.trim())
+    .filter(line => /^(AI|助手|Agent)[：:]/.test(line))
+    .map(line => line.replace(/^(AI|助手|Agent)[：:]\s*/, '').trim())
+    .filter(Boolean);
+  const actionLike = aiLines
+    .slice()
+    .reverse()
+    .find(line => /处理方向|关键判断|下一步|具体动作|交付物|可检查|72小时|建议/.test(line));
+  if (actionLike) return '从正式测试记录自动提取：' + actionLike;
+
+  if (autoDiagnosis) {
+    const firstDiagnosis = autoDiagnosis.split(/\n+/).map(line => line.trim()).filter(Boolean)[0];
+    if (firstDiagnosis) return '自动诊断摘要：' + firstDiagnosis;
+  }
+
+  if (sessionLog) {
+    return '已存在正式测试记录，但尚未生成“发给被访者的测试结果摘要”。请主持人点击“停止追问，生成结果”，或人工补写摘要。本轮不应按独立 AI 成功案例统计。';
+  }
+
+  return '';
+}
+
 function deriveQualityFlag_(payload, ai) {
   const flags = [];
   if (ai.unstructured_output) flags.push('unstructured_output');
@@ -846,8 +889,8 @@ function detectKeyIssue_(payload) {
 }
 
 function needsManualReview_(payload) {
-  const text = [payload.resultSummary || '', payload.autoDiagnosis || '', payload.sessionLog || ''].join('\n');
-  if (/格式|JSON|raw_text|不完整|复核|没懂|最卡|废话/.test(text)) return true;
+  const text = [deriveResultSummaryForExport_(payload), payload.resultSummary || '', payload.autoDiagnosis || '', payload.sessionLog || ''].join('\n');
+  if (/格式|JSON|raw_text|不完整|复核|没懂|最卡|废话|尚未生成|未生成正式|不应按独立/.test(text)) return true;
   if (payload.diagnosisConfirm && payload.diagnosisConfirm !== '符合') return true;
   if (payload.acceptance && String(payload.acceptance).indexOf('A3') >= 0) return true;
   if (payload.match && /不相符|有点偏/.test(payload.match)) return true;
